@@ -10,6 +10,10 @@
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
   <depend>rcl_interfaces</depend>
+  <depend>bumperbot_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf_transformations</depend>
   <depend>turtlesim</depend>
 
   <test_depend>ament_copyright</test_depend>
