@@ -1,3 +1,3 @@
-# motor_ws
-up to unit 7 udemy locomotion
-code for bldc motor control
+# bldc motor control using vesc 
+up to unit 12 udemy locomotion
+modifications to arduino code for bldc motor control

@@ -1,4 +1,4 @@
-#define LED_PIN 13
+int LED_PIN = LED_BUILTIN; //was 13
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);

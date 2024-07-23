@@ -31,7 +31,7 @@ void loop() {
   String encoder_read = "r" + right_encoder_sign + String(right_wheel_meas_vel);
   Serial.println(encoder_read);
   right_encoder_counter = 0;
-  analogWrite(L298N_enA, 100);
+  analogWrite(L298N_enA, 50);
   delay(100);
 }
 
