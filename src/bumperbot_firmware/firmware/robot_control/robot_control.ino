@@ -11,13 +11,13 @@ unsigned int clip = 168;  //  5V*168/255 = 3.3V
 // vesc Connection PINs
 // motor M1
 #define pin_m1_adc1 5  // connect to m1_adc1 on esc for M1 << SPEED CONTROL >>
-#define pin_m1_rx 3    // connect to RX/SDA on ESC for M1 << DIRECTIONAL CONTROL >>
+#define pin_m1_rx 11    // connect to RX/SDA on ESC for M1 << DIRECTIONAL CONTROL >>
 // motor M2
 #define pin_m2_adc1 6  // connect to m2_adc1 on ESC for M2 <<SPEED CONTROL>>
 #define pin_m2_rx 10   // connect to RX/SDA on ESC for M2  << DIRECTIONAL CONTROL>>
 
 // Wheel Encoders Connection PINs
-#define m2_encoder_phaseA 7  // Interrupt
+#define m2_encoder_phaseA 3 // Interrupt
 #define m2_encoder_phaseB 9
 #define m1_encoder_phaseA 2  // Interrupt
 #define m1_encoder_phaseB 4
@@ -51,9 +51,9 @@ double m1_wheel_meas_vel = 0.0;  // rad/s
 double m2_wheel_cmd = 0.0;  // 0-255
 double m1_wheel_cmd = 0.0;  // 0-255
 // Tuning
-double Kp_r = 11.5;
-double Ki_r = 7.5;
-double Kd_r = 0.1;
+double Kp_r = 1.; // was 11.5
+double Ki_r = 0.; // was 7.5
+double Kd_r = 0.; // was 0.1
 double Kp_l = 12.8;
 double Ki_l = 8.3;
 double Kd_l = 0.1;
@@ -82,6 +82,10 @@ void setup() {
   // Set Motor Rotation Direction
   analogWrite(pin_m2_rx, clip);
   analogWrite(pin_m1_rx, clip);
+
+  // start with motors stopped
+  analogWrite(pin_m1_adc1, 0);
+  analogWrite(pin_m2_adc1, 0);
 
   // enable PID
   // AUTOMATIC = ON; MANUAL = OFF
@@ -135,7 +139,7 @@ void loop() {
         is_m2_wheel_forward = false;
       } else if (is_m1_wheel_cmd && is_m1_wheel_forward) {
         // change the direction of the rotation
-        analogWrite(pin_m1_rx, clip);
+        analogWrite(pin_m1_rx, 0);
 
         is_m1_wheel_forward = false;
       }
@@ -178,7 +182,7 @@ void loop() {
 
 
   {
-    m2_wheel_meas_vel = (1000. / real_interval) * m2_encoder_counter * (60.0 / (1. * 5.)) * 0.10472;  // rad/s
+    m2_wheel_meas_vel = (1000. / real_interval) * m2_encoder_counter * (60.0 / (75. * 5.)) * 0.10472;  // rad/s
     m1_wheel_meas_vel = (1000. / real_interval) * m1_encoder_counter * (60.0 / (1. * 5.)) * 0.10472;
 
     rightMotor.Compute();
