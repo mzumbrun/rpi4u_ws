@@ -1,24 +1,26 @@
-// 7/30/24 changing to ppm from adc control
-// 7/22/24 base code for Udemy locomotion class
+// base code from Udemy locomotion class
+// 7/22/24
 // real robot motor 2 is on the right side
 // real robot motor 1 is on the left side
 
 #include <PID_v1.h>
-#include <Servo.h>
+
+// clip pwm so nano does't output beyond 3.3V to ESC
+unsigned int clip = 168;  //  5V*168/255 = 3.3V
 
 // vesc Connection PINs
-#define pin_m1_ppm 5  // connect to m1_ppm on esc for M1 << SPEED CONTROL >>
-#define pin_m2_ppm 6  // connect to m2_ppm on ESC for M2 <<SPEED CONTROL>>
+// motor M1
+#define pin_m1_adc1 5  // connect to m1_adc1 on esc for M1 << SPEED CONTROL >>
+#define pin_m1_rx 11    // connect to RX/SDA on ESC for M1 << DIRECTIONAL CONTROL >>
+// motor M2
+#define pin_m2_adc1 6  // connect to m2_adc1 on ESC for M2 <<SPEED CONTROL>>
+#define pin_m2_rx 10   // connect to RX/SDA on ESC for M2  << DIRECTIONAL CONTROL>>
 
 // Wheel Encoders Connection PINs
-#define m2_encoder_phaseA 3  // Interrupt
+#define m2_encoder_phaseA 3 // Interrupt
 #define m2_encoder_phaseB 9
 #define m1_encoder_phaseA 2  // Interrupt
 #define m1_encoder_phaseB 4
-
-Servo m1_servo;
-Servo m2_servo;
-
 
 // Encoders
 unsigned int m1_encoder_counter = 0;
@@ -48,42 +50,47 @@ double m1_wheel_meas_vel = 0.0;  // rad/s
 // Output - Command
 double m2_wheel_cmd = 0.0;  // 0-255
 double m1_wheel_cmd = 0.0;  // 0-255
-int m1_wheel_speed = 0;
-
 // Tuning
-double Kp_r = 12.;   // was 11.5
-double Ki_r = 7.;    // was 7.5
-double Kd_r = 0.1;   // was 0.1
-double Kp_l = 12.8;  // was 12.8
-double Ki_l = 8.3;   //was 8.3
-double Kd_l = 0.1;   //was 0.1
+double Kp_r = 1.; // was 11.5
+double Ki_r = 0.; // was 7.5
+double Kd_r = 0.; // was 0.1
+double Kp_l = 12.8;
+double Ki_l = 8.3;
+double Kd_l = 0.1;
 // Controller
 // PID syntax
+// &input, &output, &setpoint, Kp, Ki, Kd, Pon, Direction
 // &input is variable we are trying to control
 // &output is variable that will be adjusted by the PID
 // &setpoint is value we want to maintain
 // Kp, Ki Kd are tuning parameters (emperical or guesses)
 // Direction is either DIRECT or REVERSE
 // Pon is P_ON_E by default or P_ON_M allows proportional on measurement
-//                 &input,            &output,        &setpoint,      Kp,  Ki,    Kd, Pon, Direction
-//                 rad/s              0-255           rad/s
 PID rightMotor(&m2_wheel_meas_vel, &m2_wheel_cmd, &m2_wheel_cmd_vel, Kp_r, Ki_r, Kd_r, DIRECT);
 PID leftMotor(&m1_wheel_meas_vel, &m1_wheel_cmd, &m1_wheel_cmd_vel, Kp_l, Ki_l, Kd_l, DIRECT);
 
 void setup() {
 
-  m1_servo.attach(pin_m1_ppm);
-  m2_servo.attach(pin_m2_ppm);
+  // Connection to ESC controllers
+  // motor M1
+  pinMode(pin_m1_adc1, OUTPUT);
+  pinMode(pin_m1_rx, OUTPUT);
+  // motor M2
+  pinMode(pin_m2_adc1, OUTPUT);
+  pinMode(pin_m2_rx, OUTPUT);
+
+  // Set Motor Rotation Direction
+  analogWrite(pin_m2_rx, clip);
+  analogWrite(pin_m1_rx, clip);
+
   // start with motors stopped
-  m1_servo.writeMicroseconds(1500);
-  m2_servo.writeMicroseconds(1500);
+  analogWrite(pin_m1_adc1, 0);
+  analogWrite(pin_m2_adc1, 0);
 
   // enable PID
   // AUTOMATIC = ON; MANUAL = OFF
   rightMotor.SetMode(AUTOMATIC);
   leftMotor.SetMode(AUTOMATIC);
-
-  // start serial port
   Serial.begin(115200);
 
   // Init encoders
@@ -115,9 +122,12 @@ void loop() {
     else if (chr == 'p') {
       if (is_m2_wheel_cmd && !is_m2_wheel_forward) {
         // change the direction of the rotation
+        analogWrite(pin_m2_rx, clip);
         is_m2_wheel_forward = true;
       } else if (is_m1_wheel_cmd && !is_m1_wheel_forward) {
         // change the direction of the rotation
+        analogWrite(pin_m1_rx, clip);
+
         is_m1_wheel_forward = true;
       }
     }
@@ -125,17 +135,19 @@ void loop() {
     else if (chr == 'n') {
       if (is_m2_wheel_cmd && is_m2_wheel_forward) {
         // change the direction of the rotation
+        analogWrite(pin_m2_rx, 0);
         is_m2_wheel_forward = false;
       } else if (is_m1_wheel_cmd && is_m1_wheel_forward) {
         // change the direction of the rotation
+        analogWrite(pin_m1_rx, 0);
+
         is_m1_wheel_forward = false;
       }
     }
-    // wheel velocity
+    // Separator
     else if (chr == ',') {
       if (is_m2_wheel_cmd) {
-        m2_wheel_cmd_vel = atof(value);  // is this rad/s
-                                         // Serial.println(m2_wheel_cmd_vel);
+        m2_wheel_cmd_vel = atof(value);
       } else if (is_m1_wheel_cmd) {
         m1_wheel_cmd_vel = atof(value);
         is_cmd_complete = true;
@@ -160,18 +172,19 @@ void loop() {
 
   // Encoder
   unsigned long current_millis = millis();
-  // real_interval = current_millis - last_millis;
-  if (current_millis - last_millis >= interval) {
+  real_interval = current_millis - last_millis;
+  if (real_interval >= interval)
 
-    // 60 = min to sec
-    // 14 = encoder pulses per revolution
-    // 5 = gearbox ration
-    // .10472 = converts rpm to rads/sec
+  // 60 = min to sec
+  // 1 = encoder pulses per revolution
+  // 5 = gearbox ration
+  // .10472 = converts rpm to rads/sec
 
-    m2_wheel_meas_vel = 10 * m2_encoder_counter * (60.0 / (14. * 5.)) * 0.10472;  // rad/s
-    m1_wheel_meas_vel = 10 * m1_encoder_counter * (60.0 / (14. * 5.)) * 0.10472;
-    //  Serial.print("set point ");
-    //  Serial.println(m1_wheel_cmd_vel);
+
+  {
+    m2_wheel_meas_vel = (1000. / real_interval) * m2_encoder_counter * (60.0 / (75. * 5.)) * 0.10472;  // rad/s
+    m1_wheel_meas_vel = (1000. / real_interval) * m1_encoder_counter * (60.0 / (1. * 5.)) * 0.10472;
+
     rightMotor.Compute();
     leftMotor.Compute();
 
@@ -187,25 +200,14 @@ void loop() {
     // send data to ROS2 over serial port
     String encoder_read = "r" + m2_wheel_sign + String(m2_wheel_meas_vel) + ",l" + m1_wheel_sign + String(m1_wheel_meas_vel) + ",";
     Serial.println(encoder_read);
-    // Serial.println(m1_wheel_cmd);
     //
     //
     last_millis = current_millis;
     m2_encoder_counter = 0;
     m1_encoder_counter = 0;
 
-    if (is_m1_wheel_cmd && is_m1_wheel_forward) {
-      m1_servo.writeMicroseconds(map(m1_wheel_cmd, 0, 1, 1500, 2450));
-    }
-    if (is_m1_wheel_cmd && !is_m1_wheel_forward) {
-      m1_servo.writeMicroseconds(map(m1_wheel_cmd, -1, 0, 600, 1500));
-    }
-    if (is_m2_wheel_cmd && is_m2_wheel_forward) {
-      m2_servo.writeMicroseconds(map(m2_wheel_cmd, 0, 1, 1500, 2450));
-    }
-    if (is_m2_wheel_cmd && !is_m2_wheel_forward) {
-      m2_servo.writeMicroseconds(map(m2_wheel_cmd, -1, 0, 600, 1500));
-    }
+    analogWrite(pin_m2_adc1, 0.1*m2_wheel_cmd);   //was 0.66
+    analogWrite(pin_m1_adc1, 0.66*m1_wheel_cmd);
   }
 }
 
