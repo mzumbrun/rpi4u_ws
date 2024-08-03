@@ -196,6 +196,9 @@ hardware_interface::return_type BumperbotInterface::write(const rclcpp::Time &,
   try
   {
     arduino_.Write(message_stream.str());
+    RCLCPP_ERROR_STREAM(rclcpp::get_logger("BumperbotInterface"),
+                        "String serial data sent to Arduino "
+                            << message_stream.str());
   }
   catch (...)
   {
