@@ -8,7 +8,7 @@
 
 // vesc Connection PINs
 #define pin_m1_ppm 5  // connect to m1_ppm on esc for M1 << SPEED CONTROL >>
-#define pin_m2_ppm 6  // connect to m2_ppm on ESC for M2 <<SPEED CONTROL>>
+#define pin_m2_ppm 9  // connect to m2_ppm on ESC for M2 <<SPEED CONTROL>>
 
 // Wheel Encoders Connection PINs
 #define m2_encoder_phaseA 3  // Interrupt
@@ -26,8 +26,8 @@ unsigned int m2_encoder_counter = 0;
 String m1_wheel_sign = "p";  // 'p' = positive, 'n' = negative
 String m2_wheel_sign = "p";  // 'p' = positive, 'n' = negative
 unsigned long last_millis = 0;
-const unsigned long interval = 50;  // the desired time between encoder measurements, msec
-double real_interval = 0.;           // the real time between encoder measurements
+const unsigned long interval = 1000;  // the desired time between encoder measurements, msec
+double real_interval = 0.;         // the real time between encoder measurements
 
 // Interpret Serial Messages
 bool is_m2_wheel_cmd = false;
@@ -101,6 +101,7 @@ void loop() {
   if (Serial.available()) {
     // while (Serial.available() >0) {
     char chr = Serial.read();
+    // Serial.println(chr);
     // Right Wheel Motor
     if (chr == 'r') {
       is_m2_wheel_cmd = true;
@@ -131,14 +132,17 @@ void loop() {
     // wheel velocity
     else if (chr == ',') {
       if (is_m2_wheel_cmd) {
-        m2_wheel_cmd_vel = atof(value);  // is this rad/s
-        m2_wheel_cmd_vel = map(m2_wheel_cmd_vel, 0, 1, 0, 200);
+        m2_wheel_cmd_vel = 10*atof(value);  // is this rad/s
+                                         // Serial.println("m2,r input " + String(value));
+        m2_wheel_cmd_vel = map(m2_wheel_cmd_vel, 0, 80, 0, 200);
       } else if (is_m1_wheel_cmd) {
-        m1_wheel_cmd_vel = atof(value);
-        m1_wheel_cmd_vel = map(m1_wheel_cmd_vel, 0, 1, 0, 200);
+        m1_wheel_cmd_vel = 10*atof(value);
+        //  Serial.println("m1,l input "+ String(value));
+        m1_wheel_cmd_vel = map(m1_wheel_cmd_vel, 0, 80, 0, 200);
         is_cmd_complete = true;
       }
-     // Serial.println(value);
+      //Serial.println(value);
+      //Serial.println(m2_wheel_cmd_vel);
       // Reset for next command
       value_idx = 0;
       value[0] = '0';
@@ -155,6 +159,9 @@ void loop() {
         value_idx++;
       }
     }
+    //Serial.println(value);
+    //Serial.println("m1,l = " + String(m1_wheel_cmd_vel));
+    //Serial.println("m2,r = " + String(m2_wheel_cmd_vel));
   }
 
   // Encoder
@@ -167,12 +174,15 @@ void loop() {
     // 5 = gearbox ratio
     // .10472 = converts rpm to rads/sec
 
-    m2_wheel_meas_vel =  m2_encoder_counter * (60.0 / (14. * 5.)) * 0.10472;  // rad/s
-    m1_wheel_meas_vel =  m1_encoder_counter * (60.0 / (14. * 5.)) * 0.10472;
-    //m1_wheel_meas_vel = m1_wheel_cmd;
+    m2_wheel_meas_vel = m2_encoder_counter * (60.0 / (14. * 5.)) * 0.10472;  // rad/s
+    m1_wheel_meas_vel = m1_encoder_counter * (60.0 / (14. * 5.)) * 0.10472;
 
-   // rightMotor.Compute();  //yields output 0-255
-   // leftMotor.Compute();
+    // skip encoder
+    m1_wheel_meas_vel = m1_wheel_cmd;
+    m2_wheel_meas_vel = m2_wheel_cmd;
+
+    // rightMotor.Compute();  //yields output 0-255
+    // leftMotor.Compute();
 
     // Ignore commands smaller than inertia
     if (m2_wheel_cmd_vel == 0.0) {
@@ -181,20 +191,17 @@ void loop() {
     if (m1_wheel_cmd_vel == 0.0) {
       m1_wheel_cmd = 0.0;
     }
-    //
-    m1_wheel_meas_vel=m1_wheel_cmd;
-    m2_wheel_meas_vel=m2_wheel_cmd;
 
     // send data to ROS2 over serial port
     String encoder_read = "r" + m2_wheel_sign + String(m2_wheel_meas_vel) + ",l" + m1_wheel_sign + String(m1_wheel_meas_vel) + ",";
     Serial.println(encoder_read);
-    //5189
-
-   // encoder_read = m1_wheel_sign + "M1cmd=  " + String(m1_wheel_cmd,5) + "count=  " + String(m1_encoder_counter, 5) + "  M1meas =  " + String(m1_wheel_meas_vel,5) + ",";
-   // Serial.println(encoder_read);
     //
-   // encoder_read = m2_wheel_sign + "M2cmd=  " + String(m2_wheel_cmd) + "count=  " + String(m2_encoder_counter, 5) + "  M2meas =  " + String(m2_wheel_meas_vel) + ",";
-   // Serial.println(encoder_read);
+
+    // encoder_read = m1_wheel_sign + "M1cmd=  " + String(m1_wheel_cmd,5) + "count=  " + String(m1_encoder_counter, 5) + "  M1meas =  " + String(m1_wheel_meas_vel,5) + ",";
+    // Serial.println(encoder_read);
+    //
+    // encoder_read = m2_wheel_sign + "M2cmd=  " + String(m2_wheel_cmd) + "count=  " + String(m2_encoder_counter, 5) + "  M2meas =  " + String(m2_wheel_meas_vel) + ",";
+    // Serial.println(encoder_read);
     //
     //
     last_millis = current_millis;
@@ -202,7 +209,7 @@ void loop() {
     m1_encoder_counter = 0.;
 
     //change to m/s
-    m1_wheel_speed = (int)m1_wheel_cmd_vel; // TAKE OUT VEL
+    m1_wheel_speed = (int)m1_wheel_cmd_vel;  // TAKE OUT VEL
     m2_wheel_speed = (int)m2_wheel_cmd_vel;
 
 
