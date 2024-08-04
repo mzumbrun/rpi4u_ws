@@ -26,8 +26,8 @@ unsigned int m2_encoder_counter = 0;
 String m1_wheel_sign = "p";  // 'p' = positive, 'n' = negative
 String m2_wheel_sign = "p";  // 'p' = positive, 'n' = negative
 unsigned long last_millis = 0;
-const unsigned long interval = 1000;  // the desired time between encoder measurements, msec
-double real_interval = 0.;         // the real time between encoder measurements
+const unsigned long interval = 100;  // the desired time between encoder measurements, msec
+double real_interval = 0.;            // the real time between encoder measurements
 
 // Interpret Serial Messages
 bool is_m2_wheel_cmd = false;
@@ -130,13 +130,17 @@ void loop() {
     }
 
     // wheel velocity
-    else if (chr == ',') {
-      if (is_m2_wheel_cmd) {
-        m2_wheel_cmd_vel = 10*atof(value);  // is this rad/s
-                                         // Serial.println("m2,r input " + String(value));
+    else if (chr == ',') 
+    {
+      if (is_m2_wheel_cmd) 
+      {
+        m2_wheel_cmd_vel = 10 * atof(value);  // is this rad/s
+                                              // Serial.println("m2,r input " + String(value));
         m2_wheel_cmd_vel = map(m2_wheel_cmd_vel, 0, 80, 0, 200);
-      } else if (is_m1_wheel_cmd) {
-        m1_wheel_cmd_vel = 10*atof(value);
+      } 
+      else if (is_m1_wheel_cmd) 
+      {
+        m1_wheel_cmd_vel = 10 * atof(value);
         //  Serial.println("m1,l input "+ String(value));
         m1_wheel_cmd_vel = map(m1_wheel_cmd_vel, 0, 80, 0, 200);
         is_cmd_complete = true;
