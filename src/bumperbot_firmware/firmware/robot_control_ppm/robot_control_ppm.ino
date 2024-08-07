@@ -50,16 +50,21 @@ double m2_wheel_cmd = 0.0;  // 0-255
 double m1_wheel_cmd = 0.0;  // 0-255
 int m1_wheel_speed = 0;
 int m2_wheel_speed = 0;
-double speed = 0.0;
 
 // Tuning
-double Kp_r = 1.;  // was 11.5
+double Kp_r = 12.;  // was 11.5
 double Ki_r = 0.;   // was 7.5
 double Kd_r = 0.;   // was 0.1
 double Kp_l = 1.;   // was 12.8
 double Ki_l = 0.;   //was 8.3
 double Kd_l = 0.;   //was 0.1
 // Controller
+// PID syntax
+// &input is variable we are trying to control
+// &output is variable that will be adjusted by the PID
+// &setpoint is value we want to maintain
+// Kp, Ki Kd are tuning parameters (emperical or guesses)
+// Direction is either DIRECT or REVERSE
 // Pon is P_ON_E by default or P_ON_M allows proportional on measurement
 //                 &input,            &output,        &setpoint,      Kp,  Ki,    Kd, Pon, Direction
 //                 rad/s              0-255           rad/s
@@ -109,35 +114,81 @@ void loop() {
       is_m1_wheel_cmd = true;
       value_idx = 0;
     }
-    chr = Serial.read();
-     // Positive direction
-    if (chr == 'p' && is_m2_wheel_cmd) {
-      is_m2_wheel_forward = true;
-      m2_wheel_cmd_vel = (wheel_speed());
+
+   // Positive direction
+    else if(chr == 'p')
+    {
+      if(is_m2_wheel_cmd && !is_m2_wheel_forward)
+      {
+        is_m2_wheel_forward = true;
+      }
+      else if(is_m1_wheel_cmd && !is_m1_wheel_forward)
+      {
+        is_m1_wheel_forward = true;
+      }
     }
-    //
-    else if (chr == 'p' && is_m1_wheel_cmd) { 
-      is_m1_wheel_forward = true;
-      m2_wheel_cmd_vel = wheel_speed();
-    }
-    chr = Serial.read();
     // Negative direction
-    if (chr == 'n' && is_m2_wheel_cmd) { 
-      is_m2_wheel_forward = false;
-      m2_wheel_cmd_vel = wheel_speed();
+    else if(chr == 'n')
+    {
+      if(is_m2_wheel_cmd && is_m2_wheel_forward)
+      {
+        is_m2_wheel_forward = false;
+      }
+      else if(is_m1_wheel_cmd && is_m1_wheel_forward)
+      {
+        is_m1_wheel_forward = false;
+      }
+    }
+  
+/*
+    // Positive direction
+    else if (chr == 'p' && is_m2_wheel_cmd) { //else
+      is_m2_wheel_forward = true;
     }
     //
-    else if (chr == 'n' && is_m1_wheel_cmd) { 
+    else if (chr == 'p' && is_m1_wheel_cmd) { //else
+      is_m1_wheel_forward = true;
+    }
+    // Negative direction
+    else if (chr == 'n' && is_m2_wheel_cmd) { //else
+      is_m2_wheel_forward = false;
+    }
+    //
+    else if (chr == 'n' && is_m1_wheel_cmd) { //else
       is_m1_wheel_forward = false;
-      m2_wheel_cmd_vel = wheel_speed();
     }
 
-   }
+*/
+    // wheel velocity
+    else if (chr == ',') { //else
+      if (is_m2_wheel_cmd) {
+        m2_wheel_cmd_vel = atof(value);
+      } else if (is_m1_wheel_cmd) {
+        m1_wheel_cmd_vel = atof(value);
+        is_cmd_complete = true;
+      }
 
-  delay(1000);
-   Serial.println(value);
-   Serial.println("m1,l = " + String(m1_wheel_cmd_vel));
-   Serial.println("m2,r = " + String(m2_wheel_cmd_vel));
+
+      // Reset for next command
+      value_idx = 0;
+      value[0] = '0';
+      value[1] = '0';
+      value[2] = '.';
+      value[3] = '0';
+      value[4] = '0';
+      value[5] = '\0';
+    }
+    // Command Value
+    else {
+      if (value_idx < 5) {
+        value[value_idx] = chr;
+        value_idx++;
+      }
+    }
+  }
+  //  Serial.println(value);
+  // Serial.println("m1,l = " + String(m1_wheel_cmd_vel));
+  // Serial.println("m2,r = " + String(m2_wheel_cmd_vel));
 
 
   // Encoder
@@ -231,14 +282,4 @@ void leftEncoderCallback() {
   //   m1_wheel_sign = "p";
   // }
   m1_encoder_counter++;
-}
-
-double wheel_speed() {
-  char chr ="";
-  for (int i = 1; 5; i++){
-    chr  = chr+Serial.read();
-   }
-  double speed = atof(chr);
-  chr = "";
-return speed;
 }
