@@ -1,3 +1,6 @@
+// udemy code
+// 8/7/2014 - changed only encoder formula
+
 #include <PID_v1.h>
 
 // L298N H-Bridge Connection PINs
@@ -171,8 +174,8 @@ void loop() {
   unsigned long current_millis = millis();
   if(current_millis - last_millis >= interval)
   {
-    right_wheel_meas_vel = (10 * right_encoder_counter * (60.0/385.0)) * 0.10472;
-    left_wheel_meas_vel = (10 * left_encoder_counter * (60.0/385.0)) * 0.10472;
+    right_wheel_meas_vel = (10 * right_encoder_counter * (60.0/11.0)) * 0.10472; //11 was 385
+    left_wheel_meas_vel = (10 * left_encoder_counter * (60.0/11.0)) * 0.10472;
     
     rightMotor.Compute();
     leftMotor.Compute();
