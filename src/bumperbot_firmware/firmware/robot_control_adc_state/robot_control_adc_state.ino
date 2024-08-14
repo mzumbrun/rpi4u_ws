@@ -1,31 +1,26 @@
-// udemy code
-// 8/12/2024 - PID back to udemy values
-// 8/11/2024 - updated encoder formula based on measurement, changed PID to same
-// 8/7/2014 - changed only encoder formula
+// 8/14/24 changed interrupt to states
+// 8/13/24 updated code for faster interrupts
 
 #include <PID_v1.h>
 
-// L298N H-Bridge Connection PINs
-#define L298N_enA 9  // PWM
-#define L298N_enB 11  // PWM
-#define L298N_in4 8  // Dir Motor B
-#define L298N_in3 7  // Dir Motor B
-#define L298N_in2 13  // Dir Motor A
+#define L298N_enA 9  // PWM Motor 2A - 
 #define L298N_in1 12  // Dir Motor A
-
-// Wheel Encoders Connection PINs
-#define right_encoder_phaseA 3  // Interrupt 
-#define right_encoder_phaseB 5  
-#define left_encoder_phaseA 2   // Interrupt
-#define left_encoder_phaseB 4
+#define L298N_in2 13  // Dir Motor A
+#define L298N_enB 11  // PWM Motor 1B
+#define L298N_in3 7  // Dir Motor B
+#define L298N_in4 8  // Dir Motor B
+#define left_encoder_phaseA 2   // Interrupt was pin 2
+#define right_encoder_phaseA 3  // Interrupt was pin 3
 
 // Encoders
+volatile bool state_right= false;
+volatile bool state_left = false;
 unsigned int right_encoder_counter = 0;
 unsigned int left_encoder_counter = 0;
 String right_wheel_sign = "p";  // 'p' = positive, 'n' = negative
 String left_wheel_sign = "p";  // 'p' = positive, 'n' = negative
 unsigned long last_millis = 0;
-const unsigned long interval = 100;
+const unsigned long interval = 200;
 
 // Interpret Serial Messages
 bool is_right_wheel_cmd = false;
@@ -47,8 +42,8 @@ double left_wheel_meas_vel = 0.0;     // rad/s
 double right_wheel_cmd = 0.0;             // 0-255
 double left_wheel_cmd = 0.0;              // 0-255
 // Tuning
-double Kp_r = 11.5; // orig 11.5
-double Ki_r = 7.5;  // orig 7.5
+double Kp_r = 12.8; // orig 11.5
+double Ki_r = 8.3;  // orig 7.5
 double Kd_r = 0.1;  // orig 0.1
 double Kp_l = 12.8; // orig 12.8
 double Ki_l = 8.3;  // orig 8.3
@@ -58,14 +53,22 @@ PID rightMotor(&right_wheel_meas_vel, &right_wheel_cmd, &right_wheel_cmd_vel, Kp
 PID leftMotor(&left_wheel_meas_vel, &left_wheel_cmd, &left_wheel_cmd_vel, Kp_l, Ki_l, Kd_l, DIRECT);
 
 void setup() {
-  // Init L298N H-Bridge Connection PINs
+  // 
   pinMode(L298N_enA, OUTPUT);
   pinMode(L298N_enB, OUTPUT);
   pinMode(L298N_in1, OUTPUT);
   pinMode(L298N_in2, OUTPUT);
   pinMode(L298N_in3, OUTPUT);
   pinMode(L298N_in4, OUTPUT);
-
+  pinMode(right_encoder_phaseA, INPUT_PULLUP);
+  pinMode(left_encoder_phaseA, INPUT_PULLUP);
+  //pinMode(right_encoder_phaseB, INPUT_PULLUP);
+  //pinMode(left_encoder_phaseB, INPUT_PULLUP);
+  // right then left has right working
+  // left then right has still right working
+  //attachInterrupt(digitalPinToInterrupt(right_encoder_phaseA), rightEncoderCallback, FALLING); //was RISING
+  attachInterrupt(digitalPinToInterrupt(left_encoder_phaseA), leftEncoderCallback, FALLING);
+  attachInterrupt(digitalPinToInterrupt(right_encoder_phaseA), rightEncoderCallback, FALLING); //was RISING
   // Set Motor Rotation Direction
   digitalWrite(L298N_in1, HIGH);
   digitalWrite(L298N_in2, LOW);
@@ -74,18 +77,8 @@ void setup() {
 
   rightMotor.SetMode(AUTOMATIC);
   leftMotor.SetMode(AUTOMATIC);
+
   Serial.begin(115200);
-
-  // Init encoders
-  pinMode(right_encoder_phaseB, INPUT);
-  pinMode(left_encoder_phaseB, INPUT);
-  // Set Callback for Wheel Encoders Pulse
-  // when right followed by left, left motor works
-  // when left followed by right, right motor works
-  // thus, second interrupt takes priority over first
-  attachInterrupt(digitalPinToInterrupt(left_encoder_phaseA), leftEncoderCallback, RISING); // was RISING
-  attachInterrupt(digitalPinToInterrupt(right_encoder_phaseA), rightEncoderCallback, RISING);
-
 }
 
 void loop() {
@@ -117,6 +110,7 @@ void loop() {
         digitalWrite(L298N_in1, HIGH - digitalRead(L298N_in1));
         digitalWrite(L298N_in2, HIGH - digitalRead(L298N_in2));
         is_right_wheel_forward = true;
+        right_wheel_sign = "p";
       }
       else if(is_left_wheel_cmd && !is_left_wheel_forward)
       {
@@ -124,6 +118,7 @@ void loop() {
         digitalWrite(L298N_in3, HIGH - digitalRead(L298N_in3));
         digitalWrite(L298N_in4, HIGH - digitalRead(L298N_in4));
         is_left_wheel_forward = true;
+        left_wheel_sign = "p";
       }
     }
     // Negative direction
@@ -135,6 +130,7 @@ void loop() {
         digitalWrite(L298N_in1, HIGH - digitalRead(L298N_in1));
         digitalWrite(L298N_in2, HIGH - digitalRead(L298N_in2));
         is_right_wheel_forward = false;
+        right_wheel_sign = "n";
       }
       else if(is_left_wheel_cmd && is_left_wheel_forward)
       {
@@ -142,6 +138,7 @@ void loop() {
         digitalWrite(L298N_in3, HIGH - digitalRead(L298N_in3));
         digitalWrite(L298N_in4, HIGH - digitalRead(L298N_in4));
         is_left_wheel_forward = false;
+        left_wheel_sign = "n";
       }
     }
     // Separator
@@ -174,15 +171,25 @@ void loop() {
         value_idx++;
       }
     }
+    noInterrupts();
+    if(state_right){
+      right_encoder_counter++;
+      state_right = false;
+    }
+    if(state_left){
+      left_encoder_counter++;
+      state_left = false;
+    }
+    interrupts();
   }
 
   // Encoder
   unsigned long current_millis = millis();
   if(current_millis - last_millis >= interval)
   {
-    right_wheel_meas_vel = (10 * right_encoder_counter * (60.0/110.)) * 0.10472; //110 was 385
-    left_wheel_meas_vel = (10 * left_encoder_counter * (60.0/110.)) * 0.10472;
-    
+    right_wheel_meas_vel = (5 * right_encoder_counter * (60.0/110.)) * 0.10472; //110 was 385
+    left_wheel_meas_vel =  (5* left_encoder_counter  * (60.0/110.)) * 0.10472;
+     
     rightMotor.Compute();
     leftMotor.Compute();
 
@@ -202,6 +209,10 @@ void loop() {
     right_encoder_counter = 0;
     left_encoder_counter = 0;
 
+    //ignore PID
+    //right_wheel_cmd = 10* right_wheel_cmd_vel;
+    //left_wheel_cmd = 10* left_wheel_cmd_vel;
+
     analogWrite(L298N_enA, right_wheel_cmd);
     analogWrite(L298N_enB, left_wheel_cmd);
   }
@@ -210,27 +221,11 @@ void loop() {
 // New pulse from Right Wheel Encoder
 void rightEncoderCallback()
 {
-  if(digitalRead(right_encoder_phaseB) == HIGH)
-  {
-    right_wheel_sign = "p";
-  }
-  else
-  {
-    right_wheel_sign = "n";
-  }
-  right_encoder_counter++;
+  state_right = true;
 }
 
 // New pulse from Left Wheel Encoder
 void leftEncoderCallback()
 {
-  if(digitalRead(left_encoder_phaseB) == HIGH)
-  {
-    left_wheel_sign = "n";
-  }
-  else
-  {
-    left_wheel_sign = "p";
-  }
-  left_encoder_counter++;
+  state_left = true;
 }
