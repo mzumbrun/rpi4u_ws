@@ -185,13 +185,18 @@ void loop() {
   unsigned long current_millis = millis();
   if(current_millis - last_millis >= interval)
   {
+    last_millis = current_millis;
+    
     right_wheel_meas_vel = (10 * right_encoder_counter * (60.0/110.)) * 0.10472; //110 was 385
     left_wheel_meas_vel =  (10* left_encoder_counter  * (60.0/110.)) * 0.10472;
+
+    right_encoder_counter = 0;
+    left_encoder_counter = 0;
      
     rightMotor.Compute();
     leftMotor.Compute();
 
-    // Ignore commands smaller than inertia
+    // if setpoint is 0, then make sure cmd to wheels is 0
     if(right_wheel_cmd_vel == 0.0)
     {
       right_wheel_cmd = 0.0;
@@ -201,18 +206,14 @@ void loop() {
       left_wheel_cmd = 0.0;
     }
 
-    String encoder_read = "r" + right_wheel_sign + String(right_wheel_meas_vel) + ",l" + left_wheel_sign + String(left_wheel_meas_vel) + ",";
-    Serial.println(encoder_read);
-    last_millis = current_millis;
-    right_encoder_counter = 0;
-    left_encoder_counter = 0;
-
-    //ignore PID
-    //right_wheel_cmd = 100.* right_wheel_cmd_vel;
-    //left_wheel_cmd = 100.* left_wheel_cmd_vel;
+    right_wheel_cmd = map((int)right_wheel_cmd, 0, 15, 0, 200);
+    left_wheel_cmd = map((int)left_wheel_cmd, 0, 15, 0, 200);
 
     analogWrite(L298N_enA, right_wheel_cmd);
     analogWrite(L298N_enB, left_wheel_cmd);
+
+    String encoder_read = "r" + right_wheel_sign + String(right_wheel_meas_vel) + ",l" + left_wheel_sign + String(left_wheel_meas_vel) + ",";
+    Serial.println(encoder_read);
   }
 }
 
