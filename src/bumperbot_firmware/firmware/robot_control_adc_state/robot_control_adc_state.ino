@@ -20,7 +20,7 @@ unsigned int left_encoder_counter = 0;
 String right_wheel_sign = "p";  // 'p' = positive, 'n' = negative
 String left_wheel_sign = "p";  // 'p' = positive, 'n' = negative
 unsigned long last_millis = 0;
-const unsigned long interval = 200;
+const unsigned long interval = 100;
 
 // Interpret Serial Messages
 bool is_right_wheel_cmd = false;
@@ -42,11 +42,11 @@ double left_wheel_meas_vel = 0.0;     // rad/s
 double right_wheel_cmd = 0.0;             // 0-255
 double left_wheel_cmd = 0.0;              // 0-255
 // Tuning
-double Kp_r = 12.8; // orig 11.5
-double Ki_r = 8.3;  // orig 7.5
+double Kp_r = 12.0; // orig 11.5
+double Ki_r = 8.0;  // orig 7.5
 double Kd_r = 0.1;  // orig 0.1
-double Kp_l = 12.8; // orig 12.8
-double Ki_l = 8.3;  // orig 8.3
+double Kp_l = 12.0; // orig 12.8
+double Ki_l = 8.0;  // orig 8.3
 double Kd_l = 0.1;  // orig 0.1
 // Controller
 PID rightMotor(&right_wheel_meas_vel, &right_wheel_cmd, &right_wheel_cmd_vel, Kp_r, Ki_r, Kd_r, DIRECT);
@@ -64,8 +64,6 @@ void setup() {
   pinMode(left_encoder_phaseA, INPUT_PULLUP);
   //pinMode(right_encoder_phaseB, INPUT_PULLUP);
   //pinMode(left_encoder_phaseB, INPUT_PULLUP);
-  // right then left has right working
-  // left then right has still right working
   //attachInterrupt(digitalPinToInterrupt(right_encoder_phaseA), rightEncoderCallback, FALLING); //was RISING
   attachInterrupt(digitalPinToInterrupt(left_encoder_phaseA), leftEncoderCallback, FALLING);
   attachInterrupt(digitalPinToInterrupt(right_encoder_phaseA), rightEncoderCallback, FALLING); //was RISING
@@ -187,8 +185,8 @@ void loop() {
   unsigned long current_millis = millis();
   if(current_millis - last_millis >= interval)
   {
-    right_wheel_meas_vel = (5 * right_encoder_counter * (60.0/110.)) * 0.10472; //110 was 385
-    left_wheel_meas_vel =  (5* left_encoder_counter  * (60.0/110.)) * 0.10472;
+    right_wheel_meas_vel = (10 * right_encoder_counter * (60.0/110.)) * 0.10472; //110 was 385
+    left_wheel_meas_vel =  (10* left_encoder_counter  * (60.0/110.)) * 0.10472;
      
     rightMotor.Compute();
     leftMotor.Compute();
@@ -210,8 +208,8 @@ void loop() {
     left_encoder_counter = 0;
 
     //ignore PID
-    //right_wheel_cmd = 10* right_wheel_cmd_vel;
-    //left_wheel_cmd = 10* left_wheel_cmd_vel;
+    //right_wheel_cmd = 100.* right_wheel_cmd_vel;
+    //left_wheel_cmd = 100.* left_wheel_cmd_vel;
 
     analogWrite(L298N_enA, right_wheel_cmd);
     analogWrite(L298N_enB, left_wheel_cmd);
