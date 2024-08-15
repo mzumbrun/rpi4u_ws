@@ -35,7 +35,9 @@ public:
 
 private:
   LibSerial::SerialPort arduino_;
+  LibSerial::SerialPort arduino2_;
   std::string port_;
+  std::string port2_;
   std::vector<double> velocity_commands_;
   std::vector<double> position_states_;
   std::vector<double> velocity_states_;
