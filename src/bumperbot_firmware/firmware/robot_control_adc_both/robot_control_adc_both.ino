@@ -12,7 +12,7 @@
 #define encoder_counter 2   // Interrupt 
 
 // Define motor as "l" or "r"
-char motor_location = 'l';
+char motor_location = "l";
 
 // Encoders
 volatile bool state = false;
