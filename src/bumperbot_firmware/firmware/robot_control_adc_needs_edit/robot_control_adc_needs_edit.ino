@@ -1,3 +1,5 @@
+
+// 8/16/2024 - use for both motors but need to edit "l" or "r" in location
 // 8/15/2024 - right 2A motor only - small bot uses nano 
 
 #include <PID_v1.h>
@@ -10,6 +12,9 @@
 #define L298N_in4 8  // Dir Motor B 8
 #define left_encoder_phaseA 2   // Interrupt was pin 2
 #define right_encoder_phaseA 3  // Interrupt was pin 3
+
+// Choose wheel
+String location = "r";
 
 // Encoders
 volatile bool state_right= false;
@@ -210,8 +215,8 @@ void loop() {
 
     analogWrite(L298N_enA, right_wheel_cmd);
     //analogWrite(L298N_enB, left_wheel_cmd);
-
-    String encoder_read = "r" + right_wheel_sign + String(right_wheel_meas_vel) + ",r" + right_wheel_sign + String(right_wheel_meas_vel) + ",";
+    //String encoder_read = "r" + right_wheel_sign + String(right_wheel_meas_vel) + ",r" + right_wheel_sign + String(right_wheel_meas_vel) + ",";
+    String encoder_read = location + right_wheel_sign + String(right_wheel_meas_vel) + ",";
     Serial.println(encoder_read);
   }
 }
