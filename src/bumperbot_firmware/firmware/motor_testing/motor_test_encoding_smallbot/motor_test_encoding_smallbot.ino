@@ -1,35 +1,26 @@
 // 8/11/2024 modified udemy code for measuring encoder values
+// physically move the motor by hand and use serial port to read encoder clicks
+//
 #include <PID_v1.h>
 
 // Wheel Encoders Connection PINs
-// motor 1B
-#define left_encoder_phaseA 2   // Interrupt was pin 2
-#define left_encoder_phaseB 4
-// motor 2A
-#define right_encoder_phaseA 3  // Interrupt was pin 3
-#define right_encoder_phaseB 5 
+// motor 
+#define encoder_interrupt_1 2   
+#define encoder_interrupt_2 3
 
 // Encoders
-unsigned int right_encoder_counterA = 0;
-unsigned int left_encoder_counterA = 0;
-unsigned int right_encoder_counterB = 0;
-unsigned int left_encoder_counterB = 0;
-
-
+unsigned int encoder_counter1 = 0;
+unsigned int encoder_counter2 = 0;
 
 void setup() {
-  // Init L298N H-Bridge Connection PINs
-  pinMode(right_encoder_counterA, INPUT_PULLUP);
-  pinMode(left_encoder_counterA, INPUT_PULLUP);
-  pinMode(right_encoder_counterB, INPUT_PULLUP);
-  pinMode(left_encoder_counterB, INPUT_PULLUP);
-
+  // Connection PINs
+  pinMode(encoder_interrupt_1, INPUT_PULLUP);
+  pinMode(encoder_interrupt_2, INPUT_PULLUP);
 
   Serial.begin(115200);
 
-  // Set Callback for Wheel Encoders Pulse
-  attachInterrupt(digitalPinToInterrupt(right_encoder_phaseA), rightEncoderCallback, RISING);
-  attachInterrupt(digitalPinToInterrupt(left_encoder_phaseA), leftEncoderCallback, RISING);
+  attachInterrupt(digitalPinToInterrupt(encoder_interrupt_1), Encoder1Callback, RISING);
+  attachInterrupt(digitalPinToInterrupt(encoder_interrupt_2), Encoder2Callback, RISING);
 }
 
 void loop() {
@@ -40,30 +31,25 @@ void loop() {
     // start count
     if(chr == 'r')
     {
-    right_encoder_counterA = 0;
-    left_encoder_counterA = 0;
-    right_encoder_counterB = 0;
-    left_encoder_counterB = 0;
+    encoder_counter1 = 0;
+    encoder_counter2 = 0;
     }
   
   }
-  delay(2000);
-Serial.println("left count A = " + String(left_encoder_counterA) + "left count B = " + String(left_encoder_counterB));
-Serial.println("right count A = " + String(right_encoder_counterA) + "right count B = " + String(right_encoder_counterB));
+delay(1000);
+Serial.println("count 1 =     " + String(encoder_counter1) + "      counter 2 =     " + String(encoder_counter2));
 Serial.println(" ");
 
 }
 
 // New pulse from Right Wheel Encoder
-void rightEncoderCallback()
+void Encoder1Callback()
 {
-  right_encoder_counterA++;
-  right_encoder_counterB++;
+  encoder_counter1++;
 }
 
 // New pulse from Left Wheel Encoder
-void leftEncoderCallback()
+void Encoder2Callback()
 {
-  left_encoder_counterA++;
-  left_encoder_counterB++;
+  encoder_counter2++;
 }

@@ -60,8 +60,8 @@ bumperbot_controller:
     angular:
       z:
         has_velocity_limits    : true
-        max_velocity           : 2. # rad/s
-        min_velocity           : -2.  # rad/s
+        max_velocity           : 5. # rad/s
+        min_velocity           : -5.  # rad/s
         has_acceleration_limits: true
         max_acceleration       : 5.0  # rad/s^2
         min_acceleration       : -5.0   # rad/s^2

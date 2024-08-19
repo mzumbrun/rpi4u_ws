@@ -1,3 +1,6 @@
+// POR code for both left and right arduinos
+// to do - remove dc_high pin, use input_pullup. not urgent
+// 8/16/2024 - changed pin 13 to 7 for better fit on robot
 // 8/15/2024 -
 // left motor 1B uses nano 33 iot 'l'
 // right motor 2A uses nano 'r'
@@ -16,11 +19,11 @@
 // Encoders
 volatile bool state = false;
 unsigned int encoder_count_ = 0;
-String wheel_sign = "p";  // 'p' = positive, 'n' = negative
 unsigned long last_millis = 0;
 const unsigned long interval = 100;
 
 // Interpret Serial Messages
+String wheel_sign = "p";  // 'p' = positive, 'n' = negative
 bool is_wheel_cmd = false;
 bool is_wheel_forward = true;
 char value[] = "00.00";
@@ -30,13 +33,15 @@ String encoder_read = "rp00.00,";
 char wheel_side[] ="right";
 bool is_right = true;
 
-// PID
+// speed control
+int max_speed = 0;            // 0-255 range with value from CALIBRATION to max rad/s from ROS
+int max_rads_per_sec = 22;    // corresponds to that in ROS
 double wheel_cmd_vel = 0.0;   // setpoint from ROS_CONTROL rad/s
 double wheel_meas_vel = 0.0;  // Measured from motor encoders, rad/s
 double wheel_cmd = 0.0;       // output from PID to send to motor
-double Kp = 12.0;             // orig 12.8
-double Ki = 8.0;              // orig 8.3
-double Kd = 0.1;              // orig 0.1
+double Kp = 0.;             // orig 12.8
+double Ki = 0.;              // orig 8.3
+double Kd = 0.;              // orig 0.1
 PID Motor(&wheel_meas_vel, &wheel_cmd, &wheel_cmd_vel, Kp, Ki, Kd, DIRECT);
 
 void setup() {
@@ -53,12 +58,22 @@ void setup() {
   delay(100);
     // Read and Interpret Wheel Velocity Commands
   if (digitalRead(motor_select) == HIGH) {
-    is_right = true;
     wheel_side[0] = 'r';
+    is_right = true;
+    max_speed = 255;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
+    Kp = 1.0;            
+    Ki = 0.0;              
+    Kd = 0.0; 
+    Motor.SetTunings(Kp, Ki, Kd);
   }
   else {
     wheel_side[0] = 'l';
     is_right = false;
+    max_speed = 255;
+    Kp = 1.0;            
+    Ki = 0.0;              
+    Kd = 0.0; 
+    Motor.SetTunings(Kp, Ki, Kd);
   }
 
   Motor.SetMode(AUTOMATIC);
@@ -141,7 +156,11 @@ void loop() {
       wheel_cmd = 0.0;
     }
 
-    //  wheel_cmd = map((int)wheel_cmd, 0, 15, 0, 200);
+// following commands not necessary if using PID to zero in on matched speed with ROS
+    wheel_cmd = constrain(wheel_cmd, 0, max_rads_per_sec);
+    wheel_cmd = map((int)wheel_cmd, 0, max_rads_per_sec, 0, max_speed);
+// above not necessary if using PID
+
     analogWrite(motor_pwm_pin, wheel_cmd);
     if (is_right) {
      encoder_read = "r" + wheel_sign + String(wheel_meas_vel) + ",";
