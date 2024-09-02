@@ -1,20 +1,18 @@
-// POR code for both left and right arduinos
+// POR code for both left and right arduinos for bigbot
 // to do - remove dc_high pin, use input_pullup. not urgent
-// 8/16/2024 - changed pin 13 to 7 for better fit on robot
-// 8/15/2024 -
-// left motor 1B uses nano 33 iot 'l'
-// right motor 2A uses nano 'r'
-// change line 14 and select correct board
+// 08/21/2024 - initial code
+
 
 #include <PID_v1.h>
+#include <Servo.h>
 
-#define motor_pwm_pin 9    // PWM Motor 1B
-#define motor_forward 12   // Dir Motor B
-#define motor_backward 7  // Dir Motor B
-#define motor_select 6     // connect to pin 5 for right motor (NANO) ... connect to GND for left motor (NANO 33 IOT)
-#define dc_high 5          // driven high 
-
+#define motor_ppm_pin 9    // ppm control signal to esc
+#define motor_select 6     // connect to dc_high for right motor, dc_lowfor left motor
+#define dc_high 5          // driven high - right
+#define dc_low 4           // driven low - left 
 #define encoder_counter 2  // Interrupt
+
+Servo bigbot_servo;
 
 // Encoders
 volatile bool state = false;
@@ -45,22 +43,23 @@ double Kd = 0.;              // orig 0.1
 PID Motor(&wheel_meas_vel, &wheel_cmd, &wheel_cmd_vel, Kp, Ki, Kd, DIRECT);
 
 void setup() {
-  //
-  pinMode(motor_pwm_pin, OUTPUT);
-  pinMode(motor_forward, OUTPUT);
-  pinMode(motor_backward, OUTPUT);
+
+  bigbot_servo.attach(motor_ppm_pin);
+    // start with motor stopped
+  bigbot_servo.writeMicroseconds(1500);
+
+  pinMode(motor_ppm_pin, OUTPUT);
   pinMode(motor_select, INPUT);
   pinMode(encoder_counter, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(encoder_counter), EncoderCallback, RISING);
-  digitalWrite(motor_forward, HIGH);
-  digitalWrite(motor_backward, LOW);
+  digitalWrite(dc_low, LOW);
   digitalWrite(dc_high, HIGH);
  // delay(100);
     // Read and Interpret Wheel Velocity Commands
   if (digitalRead(motor_select) == HIGH) {
     wheel_side[0] = 'r';
     is_right = true;
-    max_speed = 255;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
+    max_speed = 2500;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
     Kp = 1.0;            
     Ki = 0.0;              
     Kd = 0.0; 
@@ -69,7 +68,7 @@ void setup() {
   else {
     wheel_side[0] = 'l';
     is_right = false;
-    max_speed = 255;
+    max_speed = 2500;
     Kp = 1.0;            
     Ki = 0.0;              
     Kd = 0.0; 
@@ -96,8 +95,6 @@ void loop() {
     else if (chr == 'p') {
       if (is_wheel_cmd && !is_wheel_forward) {
         // change the direction of the rotation
-        digitalWrite(motor_forward, HIGH - digitalRead(motor_forward));
-        digitalWrite(motor_backward, HIGH - digitalRead(motor_backward));
         is_wheel_forward = true;
         wheel_sign = "p";
       }
@@ -106,8 +103,6 @@ void loop() {
     else if (chr == 'n') {
       if (is_wheel_cmd && is_wheel_forward) {
         // change the direction of the rotation
-        digitalWrite(motor_forward, HIGH - digitalRead(motor_forward));
-        digitalWrite(motor_backward, HIGH - digitalRead(motor_backward));
         is_wheel_forward = false;
         wheel_sign = "n";
       }
@@ -147,7 +142,7 @@ void loop() {
   unsigned long current_millis = millis();
   if (current_millis - last_millis >= interval) {
     last_millis = current_millis;
-    wheel_meas_vel = (10 * encoder_count_ * (60.0 / 110.)) * 0.10472;
+    wheel_meas_vel = (10 * encoder_count_ * (60.0 / 35.)) * 0.10472;
     encoder_count_ = 0;
     Motor.Compute();
 

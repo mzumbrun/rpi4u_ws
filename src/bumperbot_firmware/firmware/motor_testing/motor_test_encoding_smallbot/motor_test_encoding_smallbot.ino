@@ -36,7 +36,7 @@ void loop() {
     }
   
   }
-delay(1000);
+//delay(1000);
 Serial.println("count 1 =     " + String(encoder_counter1) + "      counter 2 =     " + String(encoder_counter2));
 Serial.println(" ");
 

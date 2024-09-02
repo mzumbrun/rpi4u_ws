@@ -1,14 +1,10 @@
-// 8/21/24 restructure
-// 7/30/24 changing to ppm from adc control
-// 7/22/24 base code for Udemy locomotion class
-// real robot motor 2 is on the right side
-// real robot motor 1 is on the left side
+// 8/21/24 test code for ppm to bldc motors
 
 //#include <PID_v1.h>
 #include <Servo.h>
 
 #define pin_m1_ppm 5            // connect to m1_ppm on esc for M1 << SPEED CONTROL >>
-#define pin_m2_ppm 6            // connect to m2_ppm on ESC for M2 <<SPEED CONTROL>>
+#define pin_m2_ppm 9            // connect to m2_ppm on ESC for M2 <<SPEED CONTROL>>
 #define m2_encoder_interrupt 3  //
 #define m1_encoder_interrupt 2  //
 
