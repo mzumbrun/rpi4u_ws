@@ -9,10 +9,18 @@
 Servo m1_servo;
 String inString = "";  // string to hold input from keyboard
 #define m1_ppm_pin 9
+#define encoder_interrupt_1 2
 double speed = 0.0;
+double rpm = 0.0;  // Measured from motor encoders, rad/s
+volatile bool state = false;
+unsigned int encoder_counter1 = 0;
+unsigned long last_millis = 0;
+const unsigned long interval = 1000;
 
 void setup() {
+  pinMode(encoder_interrupt_1, INPUT_PULLUP);
   Serial.begin(115200);
+  attachInterrupt(digitalPinToInterrupt(encoder_interrupt_1), Encoder1Callback, LOW);
   while (!Serial) {
   }
   m1_servo.attach(m1_ppm_pin);
@@ -22,7 +30,7 @@ void setup() {
 void loop() {
   // Read serial input:
   ///*
-  while (Serial.available() > 0) {
+  if (Serial.available() > 0) {
     int inChar = Serial.read();
     if (isDigit(inChar)) {
       // convert the incoming byte to a char and add it to the string:
@@ -37,7 +45,26 @@ void loop() {
       inString = "";
       Serial.println(speed);
       m1_servo.writeMicroseconds(speed);
-        }
-    
+    }
   }
+
+  //noInterrupts();
+  //if (state) {
+  //  encoder_counter1++;
+  //  state = false;
+  //}
+  //interrupts();
+
+  unsigned long current_millis = millis();
+  if (current_millis - last_millis >= interval) {
+    last_millis = current_millis;    
+    rpm = (1. * encoder_counter1* (60.0 / 17500.));  //  
+    Serial.println("encoder count =     " + String(encoder_counter1) + "       rpm = " + String(rpm));
+    Serial.println(" ");
+    encoder_counter1 = 0;
+  }
+}
+void Encoder1Callback() {
+  //state = true;
+  encoder_counter1++;
 }

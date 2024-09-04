@@ -189,6 +189,9 @@ hardware_interface::return_type BumperbotInterface::read(const rclcpp::Time &,
     arduino_.ReadLine(message);
     std::stringstream ss(message);
     std::string res;
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
+                       "                                         DATA FROM ARDUINO      "
+                          << ss.str());
     int multiplier = 1;
     while(std::getline(ss, res, ','))
     {
@@ -210,6 +213,9 @@ hardware_interface::return_type BumperbotInterface::read(const rclcpp::Time &,
     arduino2_.ReadLine(message);
     std::stringstream ss(message);
     std::string res;
+        RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
+                       "                                  STRING DATA FROM ARDUINO 2                   "
+                          << ss.str());
     int multiplier = 1;
     while(std::getline(ss, res, ','))
     {
@@ -263,7 +269,7 @@ hardware_interface::return_type BumperbotInterface::write(const rclcpp::Time &,
   {
     arduino_.Write(message_stream.str());
     RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
-                        "String serial data sent to Arduino "
+                        "String data sent to Arduino "
                             << message_stream.str());
   }
   catch (...)
@@ -277,7 +283,7 @@ hardware_interface::return_type BumperbotInterface::write(const rclcpp::Time &,
   {
     arduino2_.Write(message_stream.str());
     RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
-                        "String serial data sent to Arduino2 "
+                        "String data sent to Arduino2 "
                             << message_stream.str());
   }
   catch (...)
