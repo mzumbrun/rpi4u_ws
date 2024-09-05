@@ -31,7 +31,7 @@ char wheel_side[] = "right";
 bool is_right = true;
 
 // speed control
-int max_pos_speed = 1500;            //  value from CALIBRATION to max rad/s from ROS
+int max_pos_speed = 1500;  //  value from CALIBRATION to max rad/s from ROS
 int max_neg_speed = 1500;
 int max_rads_per_sec = 8;     // corresponds to that in ROS
 double wheel_cmd_vel = 0.0;   // setpoint from ROS_CONTROL rad/s
@@ -82,10 +82,10 @@ void setup() {
 
 void loop() {
 
-// format from ros: "rdxx.xx,ldxx.xx," 
+  // format from ros: "rdxx.xx,ldxx.xx,"
   if (Serial.available()) {
-    ROS_input = Serial.readStringUntil('\n');  // \0 is null character  \n is new line
-    if (wheel_side[0] == 'r') {  // if true, then get its direction and speed
+    ROS_input = Serial.readStringUntil('\0');  // \0 is null character  \n is new line
+    if (wheel_side[0] == 'r') {                // if true, then get its direction and speed
       is_right = true;
       wheel_sign = ROS_input[1];
       value[0] = ROS_input[2];
@@ -94,7 +94,7 @@ void loop() {
       value[3] = ROS_input[5];
       value[4] = ROS_input[6];
       value[5] = '\0';
-        } 
+    }
     if (wheel_side[0] == 'l') {  // if true, then get its direction and speed
       wheel_sign = ROS_input[9];
       value[0] = ROS_input[10];
@@ -103,51 +103,50 @@ void loop() {
       value[3] = ROS_input[13];
       value[4] = ROS_input[14];
       value[5] = '\0';
-        }
-    wheel_cmd_vel = value.toFloat();
-    if(wheel_sign == "p"){
-      is_wheel_forward = true;}
-      else {
-        is_wheel_forward = false;
-      }
-    
-  }
-    noInterrupts();
-    if (state) {
-      encoder_count_++;
-      state = false;
     }
-    interrupts();
-  
+    wheel_cmd_vel = value.toFloat();
+    if (wheel_sign == "p") {
+      is_wheel_forward = true;
+    } else {
+      is_wheel_forward = false;
+    }
+  }
+  noInterrupts();
+  if (state) {
+    encoder_count_++;
+    state = false;
+  }
+  interrupts();
+
 
   // Encoder
   unsigned long current_millis = millis();
   if (current_millis - last_millis >= interval) {
     last_millis = current_millis;
     wheel_meas_vel = (10 * encoder_count_ * (60.0 / 7000.)) * 0.10472;  //  rads/sec
-   // Serial.println(encoder_count_);
+                                                                        // Serial.println(encoder_count_);
     encoder_count_ = 0;
-   // Motor.Compute();  // output is wheel_cmd in rad/s
+    // Motor.Compute();  // output is wheel_cmd in rad/s
 
-    if (wheel_cmd_vel == 0.0) {      // if setpoint is 0, then make sure cmd to wheels is 0
+    if (wheel_cmd_vel == 0.0) {  // if setpoint is 0, then make sure cmd to wheels is 0
       wheel_cmd = 0.0;
     }
 
     if (is_right) {
-      encoder_read = "r" + wheel_sign + String(wheel_meas_vel,2) + ",";
+      encoder_read = "r" + wheel_sign + String(wheel_meas_vel, 2) + ",";
     } else {
-      encoder_read = "l" + wheel_sign + String(wheel_meas_vel,2) + ",";
+      encoder_read = "l" + wheel_sign + String(wheel_meas_vel, 2) + ",";
     }
     Serial.println(String(encoder_read));
 
     //*****************************************************
     if (is_wheel_forward) {
       bigbot_servo.writeMicroseconds(map(wheel_cmd_vel, 0, 10, 1500, max_pos_speed));
-     // wheel_sign = "p";
+      // wheel_sign = "p";
     }
     if (!is_wheel_forward) {
       bigbot_servo.writeMicroseconds(map(wheel_cmd_vel, 0, 10, 1500, max_neg_speed));
-     // wheel_sign = "n";
+      // wheel_sign = "n";
     }
   }
 }
