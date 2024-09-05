@@ -60,7 +60,7 @@ void setup() {
   if (digitalRead(motor_select) == HIGH) {
     wheel_side[0] = 'r';
     is_right = true;
-    max_pos_speed = 1850;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
+    max_pos_speed = 2450;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
     max_neg_speed = 1000;
     Kp = 1.0;
     Ki = 0.0;
@@ -69,7 +69,7 @@ void setup() {
   } else {
     wheel_side[0] = 'l';
     is_right = false;
-    max_pos_speed = 1900;
+    max_pos_speed = 2450;
     max_neg_speed = 1000;
     Kp = 1.0;
     Ki = 0.0;
