@@ -213,7 +213,7 @@ hardware_interface::return_type BumperbotInterface::read(const rclcpp::Time &,
     arduino2_.ReadLine(message);
     std::stringstream ss(message);
     std::string res;
-        RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
                        "                                  STRING DATA FROM ARDUINO 2                   "
                           << ss.str());
     int multiplier = 1;
@@ -263,7 +263,7 @@ hardware_interface::return_type BumperbotInterface::write(const rclcpp::Time &,
   
   message_stream << std::fixed << std::setprecision(2) << 
     "r" << right_wheel_sign << compensate_zeros_right << std::abs(velocity_commands_.at(0)) << 
-    ",l" <<  left_wheel_sign << compensate_zeros_left << std::abs(velocity_commands_.at(1)) << ",";
+    ",l" <<  left_wheel_sign << compensate_zeros_left << std::abs(velocity_commands_.at(1)) << "X";
 
   try
   {
