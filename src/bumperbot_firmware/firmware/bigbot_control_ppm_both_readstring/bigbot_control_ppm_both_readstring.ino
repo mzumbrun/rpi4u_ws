@@ -6,19 +6,27 @@
 
 #include <PID_v1.h>
 #include <Servo.h>
+#include <SoftwareSerial.h>
 
 #define motor_ppm_pin 9    // ppm control signal to esc
 #define motor_select 6     // connect to dc_high for right motor, dc_lowfor left motor
 #define dc_high 5          // driven high - right
 #define dc_low 4           // driven low - left
 #define encoder_counter 2  // Interrupt
+#define H2 3
+#define H3 7
+#define rxPin 10
+#define txPin 11
 
 Servo bigbot_servo;
+SoftwareSerial hardwire_port(rxPin, txPin);
 
 // Encoders
-unsigned int encoder_count_ = 0;
+unsigned long encoder_count_ = 0;
 unsigned long last_millis = 0;
 const unsigned long interval = 100;
+unsigned long real_interval = 0;
+char len = "1";
 
 // Interpret Serial Messages
 String wheel_sign = "p";  // 'p' = positive, 'n' = negative
@@ -53,7 +61,11 @@ void setup() {
   pinMode(dc_high, OUTPUT);
   pinMode(motor_select, INPUT);
   pinMode(encoder_counter, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(encoder_counter), EncoderCallback, RISING);
+  pinMode(H2, INPUT_PULLUP);
+  pinMode(H3, INPUT_PULLUP);
+  pinMode(rxPin, INPUT);
+  pinMode(txPin, OUTPUT);
+  attachInterrupt(digitalPinToInterrupt(encoder_counter), EncoderCallback, FALLING);
   digitalWrite(dc_low, LOW);
   digitalWrite(dc_high, HIGH);
 
@@ -77,15 +89,16 @@ void setup() {
     Motor.SetTunings(Kp, Ki, Kd);
   }
   Serial.begin(115200);
-  bigbot_servo.writeMicroseconds(1500); // start with motors off
+  hardwire_port.begin(115200);
+  bigbot_servo.writeMicroseconds(1500);  // start with motors off
 }
 
 void loop() {
 
   // format from ros: "rdxx.xx,ldxx.xx,"
-  if (Serial.available() >0 ) {
+  if (Serial.available() > 0) {
     ROS_input = Serial.readStringUntil('X');  // \0 is null character  \n is new line
-    if (wheel_side[0] == 'r') {                // if true, then get its direction and speed
+    if (wheel_side[0] == 'r') {               // if true, then get its direction and speed
       is_right = true;
       wheel_sign = ROS_input[1];
       value[0] = ROS_input[2];
@@ -114,24 +127,36 @@ void loop() {
 
   // Encoder
   unsigned long current_millis = millis();
-  if (current_millis - last_millis >= interval) {
+  real_interval = current_millis - last_millis;
+  if (real_interval >= interval) {
     last_millis = current_millis;
-    wheel_meas_vel = (10 * encoder_count_ * (60.0 / 16000.)) * 0.10472;  //  rads/sec
-   // Serial.println("count/s  " + String(encoder_count_));
-   // Serial.println("rad/s   " + String(wheel_meas_vel));
-   // Serial.println(" ");
-    encoder_count_ = 0;
+    wheel_meas_vel = (1000./real_interval) * encoder_count_ * (60.0 / 35.) * 0.10472;  //  rads/sec
+
+    // hardwire_port.write(encoder_count_);
     //Motor.Compute();  // output is wheel_cmd in rad/s
 
     if (wheel_cmd_vel == 0.0) {  // if setpoint is 0, then make sure cmd to wheels is 0
       wheel_cmd = 0.0;
     }
-// *** UNTIL ENCODER CAN WORK, SEND BACK TO ROS SAME AS INPUT. ULTIMATE CHANGE TO wheel_meas_vel
+    // *** UNTIL ENCODER CAN WORK, SEND BACK TO ROS SAME AS INPUT. ULTIMATE CHANGE TO wheel_meas_vel
     if (is_right) {
-      encoder_read = "r" + wheel_sign + String(wheel_cmd_vel, 2) + ",";
+      encoder_read = "r" + wheel_sign + String(wheel_meas_vel, 2) + ",";
+      hardwire_port.write('r');
+    //  encoder_count_ = 12899;
+      String enc = String(encoder_count_);
+      len = (char)enc.length();
+      hardwire_port.write(len);
+      hardwire_port.write(enc.c_str());
     } else {
-      encoder_read = "l" + wheel_sign + String(wheel_cmd_vel, 2) + ",";
+      encoder_read = "l" + wheel_sign + String(wheel_meas_vel, 2) + ",";
+      hardwire_port.write('l');
+     // encoder_count_ = 34045;
+      String enc = String(encoder_count_);
+      len = (char)enc.length();
+      hardwire_port.write(len);
+      hardwire_port.write(enc.c_str());
     }
+    encoder_count_ = 0;
     Serial.println(encoder_read);
 
     //*****************************************************

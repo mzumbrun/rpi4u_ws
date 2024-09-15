@@ -268,9 +268,9 @@ hardware_interface::return_type BumperbotInterface::write(const rclcpp::Time &,
   try
   {
     arduino_.Write(message_stream.str());
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
-                        "String data sent to Arduino "
-                            << message_stream.str());
+//    RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
+//                        "String data sent to Arduino "
+//                            << message_stream.str());
   }
   catch (...)
   {
@@ -282,9 +282,9 @@ hardware_interface::return_type BumperbotInterface::write(const rclcpp::Time &,
     try
   {
     arduino2_.Write(message_stream.str());
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
-                        "String data sent to Arduino2 "
-                            << message_stream.str());
+//    RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
+//                        "String data sent to Arduino2 "
+//                            << message_stream.str());
   }
   catch (...)
   {

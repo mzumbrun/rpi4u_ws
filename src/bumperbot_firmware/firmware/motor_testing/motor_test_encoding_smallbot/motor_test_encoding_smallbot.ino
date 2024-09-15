@@ -1,7 +1,7 @@
 // 8/11/2024 modified udemy code for measuring encoder values
 // physically move the motor by hand and use serial port to read encoder clicks
 //
-#include <PID_v1.h>
+
 
 // Wheel Encoders Connection PINs
 // motor 

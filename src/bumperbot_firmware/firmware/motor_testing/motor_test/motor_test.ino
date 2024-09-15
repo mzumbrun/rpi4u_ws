@@ -15,7 +15,7 @@ double rpm = 0.0;  // Measured from motor encoders, rad/s
 volatile bool state = false;
 unsigned int encoder_counter1 = 0;
 unsigned long last_millis = 0;
-const unsigned long interval = 1000;
+const unsigned long interval = 100;
 
 void setup() {
   pinMode(encoder_interrupt_1, INPUT_PULLUP);
@@ -58,7 +58,7 @@ void loop() {
   unsigned long current_millis = millis();
   if (current_millis - last_millis >= interval) {
     last_millis = current_millis;    
-    rpm = (1. * encoder_counter1* (60.0 / 17500.));  //  
+    rpm = (10. * encoder_counter1* (60.0 / 17500.));  //  
     Serial.println("encoder count =     " + String(encoder_counter1) + "       rpm = " + String(rpm));
     Serial.println(" ");
     encoder_counter1 = 0;
