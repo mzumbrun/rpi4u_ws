@@ -1,5 +1,6 @@
 // POR code for both left and right arduinos for bigbot
 // to do - remove dc_high pin, use input_pullup. not urgent
+// 09/16/2024 - enabled PID and encoder
 // 09/05/2024 - changed serial read from ROS to read entire string
 // 08/21/2024 - initial code
 
@@ -44,7 +45,7 @@ int max_rads_per_sec = 8;     // corresponds to that in ROS
 double wheel_cmd_vel = 0.0;   // setpoint from ROS_CONTROL rad/s
 double wheel_meas_vel = 0.0;  // Measured from motor encoders, rad/s
 double wheel_cmd = 0.0;       // output from PID to send to motor
-double Kp = 0.;               // orig 12.8
+double Kp = 1.;               // orig 12.8
 double Ki = 0.;               // orig 8.3
 double Kd = 0.;               // orig 0.1
 PID Motor(&wheel_meas_vel, &wheel_cmd, &wheel_cmd_vel, Kp, Ki, Kd, DIRECT);
@@ -72,20 +73,20 @@ void setup() {
   if (digitalRead(motor_select) == HIGH) {
     wheel_side[0] = 'r';
     is_right = true;
-    max_pos_speed = 2450;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
+    max_pos_speed = 2000;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
     max_neg_speed = 1000;
-    Kp = 1.0;
-    Ki = 0.0;
-    Kd = 0.0;
+    Kp = 10.;
+    Ki = .8;
+    Kd = 0.1;
     Motor.SetTunings(Kp, Ki, Kd);
   } else {
     wheel_side[0] = 'l';
     is_right = false;
-    max_pos_speed = 2450;
+    max_pos_speed = 2000;
     max_neg_speed = 1000;
-    Kp = 1.0;
-    Ki = 0.0;
-    Kd = 0.0;
+    Kp = 10.;
+    Ki = .8;
+    Kd = 0.1;
     Motor.SetTunings(Kp, Ki, Kd);
   }
   Serial.begin(115200);
@@ -130,10 +131,10 @@ void loop() {
   real_interval = current_millis - last_millis;
   if (real_interval >= interval) {
     last_millis = current_millis;
-    wheel_meas_vel = (1000./real_interval) * encoder_count_ * (60.0 / 35.) * 0.10472;  //  rads/sec
+  
+    wheel_meas_vel = 1.*(float(encoder_count_)/float(real_interval)) * (60.0 / 35.) * 0.10472;  //  rads/sec
 
-    // hardwire_port.write(encoder_count_);
-    //Motor.Compute();  // output is wheel_cmd in rad/s
+    Motor.Compute();  // output is wheel_cmd 0-255
 
     if (wheel_cmd_vel == 0.0) {  // if setpoint is 0, then make sure cmd to wheels is 0
       wheel_cmd = 0.0;
@@ -161,11 +162,11 @@ void loop() {
 
     //*****************************************************
     if (is_wheel_forward) {
-      bigbot_servo.writeMicroseconds(map(wheel_cmd_vel, 0, 10, 1500, max_pos_speed));
+      bigbot_servo.writeMicroseconds(map(wheel_cmd, 0, 255, 1500, max_pos_speed));
       // wheel_sign = "p";
     }
     if (!is_wheel_forward) {
-      bigbot_servo.writeMicroseconds(map(wheel_cmd_vel, 0, 10, 1500, max_neg_speed));
+      bigbot_servo.writeMicroseconds(map(wheel_cmd, 0, 255, 1500, max_neg_speed));
       // wheel_sign = "n";
     }
   }
