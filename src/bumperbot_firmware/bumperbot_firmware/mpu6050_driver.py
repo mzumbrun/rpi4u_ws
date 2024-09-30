@@ -30,7 +30,7 @@ class MPU6050_Driver(Node):
         self.init_i2c()
 
         # ROS 2 Interface
-        self.imu_pub_ = self.create_publisher(Imu, "/imu/out", 10)
+        self.imu_pub_ = self.create_publisher(Imu, "/imu/out", qos_profile=qos_profile_sensor_data)
         self.imu_msg_ = Imu()
         self.imu_msg_.header.frame_id = "base_footprint"
         self.frequency_ = 0.01
@@ -52,10 +52,10 @@ class MPU6050_Driver(Node):
             gyro_z = self.read_raw_data(GYRO_ZOUT_H)
             
             # Full scale range +/- 250 degree/C as per sensitivity scale factor     
-            self.imu_msg_.linear_acceleration.x = acc_x / 1670.13 # conv to m/s2, value depends on sensor
+            self.imu_msg_.linear_acceleration.x = acc_x / 1670.13
             self.imu_msg_.linear_acceleration.y = acc_y / 1670.13
             self.imu_msg_.linear_acceleration.z = acc_z / 1670.13
-            self.imu_msg_.angular_velocity.x = gyro_x / 7509.55 # conv to rad/s, value depends on sensor
+            self.imu_msg_.angular_velocity.x = gyro_x / 7509.55
             self.imu_msg_.angular_velocity.y = gyro_y / 7509.55
             self.imu_msg_.angular_velocity.z = gyro_z / 7509.55
 

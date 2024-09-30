@@ -8,5 +8,5 @@ void setup() {
 void loop() {
   Serial.println(x);
   x++;
-  delay(1000);
+  delay(0.1);
 }

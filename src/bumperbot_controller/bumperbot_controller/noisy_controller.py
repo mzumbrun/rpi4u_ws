@@ -16,8 +16,8 @@ class NoisyController(Node):
 
     def __init__(self):
         super().__init__("noisy_controller")
-        self.declare_parameter("wheel_radius", 0.063)
-        self.declare_parameter("wheel_separation", 0.438)
+        self.declare_parameter("wheel_radius", 0.033)
+        self.declare_parameter("wheel_separation", 0.17)
 
         self.wheel_radius_ = self.get_parameter("wheel_radius").get_parameter_value().double_value
         self.wheel_separation_ = self.get_parameter("wheel_separation").get_parameter_value().double_value
@@ -63,8 +63,8 @@ class NoisyController(Node):
         # and then converts it in the global frame and publishes the TF
 
         # Add noise to wheel readings
-        wheel_encoder_left = msg.position[1] + np.random.normal(0, 0.001)
-        wheel_encoder_right = msg.position[0] + np.random.normal(0, 0.001)
+        wheel_encoder_left = msg.position[1] + np.random.normal(0, 0.005)
+        wheel_encoder_right = msg.position[0] + np.random.normal(0, 0.005)
 
         dp_left = wheel_encoder_left - self.left_wheel_prev_pos_
         dp_right = wheel_encoder_right - self.right_wheel_prev_pos_

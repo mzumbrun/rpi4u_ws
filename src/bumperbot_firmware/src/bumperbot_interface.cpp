@@ -24,18 +24,6 @@ BumperbotInterface::~BumperbotInterface()
                           "Something went wrong while closing connection with port " << port_);
     }
   }
-  if (arduino2_.IsOpen())
-  {
-    try
-    {
-      arduino2_.Close();
-    }
-    catch (...)
-    {
-      RCLCPP_FATAL_STREAM(rclcpp::get_logger("BumperbotInterface"),
-                          "Something went wrong while closing connection with port " << port2_);
-    }
-  }
 }
 
 
@@ -57,19 +45,10 @@ CallbackReturn BumperbotInterface::on_init(const hardware_interface::HardwareInf
     return CallbackReturn::FAILURE;
   }
 
-    try
-  {
-    port2_ = info_.hardware_parameters.at("port2");
-  }
-  catch (const std::out_of_range &e)
-  {
-    RCLCPP_FATAL(rclcpp::get_logger("BumperbotInterface"), "No Serial Port2 provided! Aborting");
-    return CallbackReturn::FAILURE;
-  }
-
   velocity_commands_.reserve(info_.joints.size());
   position_states_.reserve(info_.joints.size());
   velocity_states_.reserve(info_.joints.size());
+  last_run_ = rclcpp::Clock().now();
 
   return CallbackReturn::SUCCESS;
 }
@@ -127,17 +106,6 @@ CallbackReturn BumperbotInterface::on_activate(const rclcpp_lifecycle::State &)
                         "Something went wrong while interacting with port " << port_);
     return CallbackReturn::FAILURE;
   }
-  try
-  {
-    arduino2_.Open(port2_);
-    arduino2_.SetBaudRate(LibSerial::BaudRate::BAUD_115200);
-  }
-  catch (...)
-  {
-    RCLCPP_FATAL_STREAM(rclcpp::get_logger("BumperbotInterface"),
-                        "Something went wrong while interacting with port2 " << port2_);
-    return CallbackReturn::FAILURE;
-  }
 
   RCLCPP_INFO(rclcpp::get_logger("BumperbotInterface"),
               "Hardware started, ready to take commands");
@@ -161,18 +129,6 @@ CallbackReturn BumperbotInterface::on_deactivate(const rclcpp_lifecycle::State &
                           "Something went wrong while closing connection with port " << port_);
     }
   }
-  if (arduino2_.IsOpen())
-  {
-    try
-    {
-      arduino2_.Close();
-    }
-    catch (...)
-    {
-      RCLCPP_FATAL_STREAM(rclcpp::get_logger("BumperbotInterface"),
-                          "Something went wrong while closing connection with port2 " << port2_);
-    }
-  }
 
   RCLCPP_INFO(rclcpp::get_logger("BumperbotInterface"), "Hardware stopped");
   return CallbackReturn::SUCCESS;
@@ -185,13 +141,11 @@ hardware_interface::return_type BumperbotInterface::read(const rclcpp::Time &,
   // Interpret the string
   if(arduino_.IsDataAvailable())
   {
+    auto dt = (rclcpp::Clock().now() - last_run_).seconds();
     std::string message;
     arduino_.ReadLine(message);
     std::stringstream ss(message);
     std::string res;
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
-                       "                                         DATA FROM ARDUINO      "
-                          << ss.str());
     int multiplier = 1;
     while(std::getline(ss, res, ','))
     {
@@ -200,36 +154,15 @@ hardware_interface::return_type BumperbotInterface::read(const rclcpp::Time &,
       if(res.at(0) == 'r')
       {
         velocity_states_.at(0) = multiplier * std::stod(res.substr(2, res.size()));
+        position_states_.at(0) += velocity_states_.at(0) * dt;
       }
       else if(res.at(0) == 'l')
       {
         velocity_states_.at(1) = multiplier * std::stod(res.substr(2, res.size()));
+        position_states_.at(1) += velocity_states_.at(1) * dt;
       }
     }
-  }
-    if(arduino2_.IsDataAvailable())
-  {
-    std::string message;
-    arduino2_.ReadLine(message);
-    std::stringstream ss(message);
-    std::string res;
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
-                       "                                  STRING DATA FROM ARDUINO 2                   "
-                          << ss.str());
-    int multiplier = 1;
-    while(std::getline(ss, res, ','))
-    {
-      multiplier = res.at(1) == 'p' ? 1 : -1;
-
-      if(res.at(0) == 'r')
-      {
-        velocity_states_.at(0) = multiplier * std::stod(res.substr(2, res.size()));
-      }
-      else if(res.at(0) == 'l')
-      {
-        velocity_states_.at(1) = multiplier * std::stod(res.substr(2, res.size()));
-      }
-    }
+    last_run_ = rclcpp::Clock().now();
   }
   return hardware_interface::return_type::OK;
 }
@@ -263,34 +196,17 @@ hardware_interface::return_type BumperbotInterface::write(const rclcpp::Time &,
   
   message_stream << std::fixed << std::setprecision(2) << 
     "r" << right_wheel_sign << compensate_zeros_right << std::abs(velocity_commands_.at(0)) << 
-    ",l" <<  left_wheel_sign << compensate_zeros_left << std::abs(velocity_commands_.at(1)) << "X";
+    ",l" <<  left_wheel_sign << compensate_zeros_left << std::abs(velocity_commands_.at(1)) << ",";
 
   try
   {
     arduino_.Write(message_stream.str());
-//    RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
-//                        "String data sent to Arduino "
-//                            << message_stream.str());
   }
   catch (...)
   {
     RCLCPP_ERROR_STREAM(rclcpp::get_logger("BumperbotInterface"),
                         "Something went wrong while sending the message "
                             << message_stream.str() << " to the port " << port_);
-    return hardware_interface::return_type::ERROR;
-  }
-    try
-  {
-    arduino2_.Write(message_stream.str());
-//    RCLCPP_INFO_STREAM(rclcpp::get_logger("BumperbotInterface"),
-//                        "String data sent to Arduino2 "
-//                            << message_stream.str());
-  }
-  catch (...)
-  {
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("BumperbotInterface"),
-                        "Something went wrong while sending the message "
-                            << message_stream.str() << " to the port2 " << port2_);
     return hardware_interface::return_type::ERROR;
   }
 
