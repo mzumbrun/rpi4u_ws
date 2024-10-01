@@ -80,12 +80,12 @@ def generate_launch_description():
     )
     
     return LaunchDescription([
-        use_slam_arg,
+     #   use_slam_arg,
         hardware_interface,
-        laser_driver,
+     #   laser_driver,
         controller,
      #   joystick,
         safety_stop,
-        localization,
-        slam
+     #   localization,
+     #   slam
     ])
