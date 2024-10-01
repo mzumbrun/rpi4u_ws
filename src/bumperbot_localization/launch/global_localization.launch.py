@@ -1,5 +1,3 @@
-
-
 import os
 from launch import LaunchDescription
 from ament_index_python.packages import get_package_share_directory
@@ -17,7 +15,7 @@ def generate_launch_description():
 
     map_name_arg = DeclareLaunchArgument(
         "map_name",
-        default_value="empty"
+        default_value="small_house"
     )
 
     use_sim_time_arg = DeclareLaunchArgument(

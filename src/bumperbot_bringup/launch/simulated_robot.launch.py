@@ -45,7 +45,7 @@ def generate_launch_description():
 
     safety_stop = Node(
         package="bumperbot_utils",
-        executable="safety_stop", #c++ also available
+        executable="safety_stop",
         output="screen",
     )
 
