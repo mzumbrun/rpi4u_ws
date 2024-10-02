@@ -131,7 +131,7 @@ CallbackReturn BumperbotInterface::on_activate(const rclcpp_lifecycle::State &)
 
   try
   {
-    arduino2_.Open(port_);
+    arduino2_.Open(port2_);
     arduino2_.SetBaudRate(LibSerial::BaudRate::BAUD_115200);
   }
   catch (...)
