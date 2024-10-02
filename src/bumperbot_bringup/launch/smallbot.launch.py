@@ -85,7 +85,7 @@ def generate_launch_description():
         laser_driver,
         controller,
      #   joystick,
-        safety_stop,
+     #   safety_stop,
         localization,
         slam
     ])
