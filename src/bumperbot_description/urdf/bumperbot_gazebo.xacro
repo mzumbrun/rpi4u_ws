@@ -43,7 +43,7 @@
   </gazebo>
     
   <!-- Caster Wheels -->
-  <gazebo reference="caster_rear_link">
+  <gazebo reference="caster_right_link">
     <material>Gazebo/FlatBlack</material>
     <mu1>0.1</mu1>
     <mu2>0.1</mu2>
@@ -53,7 +53,7 @@
     <maxVel>1.0</maxVel>
   </gazebo>
     
-  <gazebo reference="caster_front_link">
+  <gazebo reference="caster_left_link">
     <material>Gazebo/FlatBlack</material>
     <mu1>0.1</mu1>
     <mu2>0.1</mu2>

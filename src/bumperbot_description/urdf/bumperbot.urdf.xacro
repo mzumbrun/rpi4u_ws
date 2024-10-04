@@ -69,7 +69,7 @@
   </link>
 
   <joint name="wheel_right_joint" type="continuous">
-    <origin xyz="0 -0.0701101849418637 0" rpy="0 0 0" />
+    <origin xyz="0 -0.141 0" rpy="0 0 0" />
     <parent link="base_link" />
     <child link="wheel_right_link" />
     <axis xyz="0 1 0" />
@@ -100,13 +100,13 @@
   </link>
 
   <joint name="wheel_left_joint" type="continuous">
-    <origin xyz="0 0.0701101849418642 0" rpy="0 0 0" />
+    <origin xyz="0 0.141 0" rpy="0 0 0" />
     <parent link="base_link" />
     <child link="wheel_left_link" />
     <axis xyz="0 1 0" />
   </joint>
 
-  <link name="caster_front_link">
+  <link name="caster_right_link">
     <inertial>
       <origin xyz="3.89968128948481E-07 2.40073004698083E-07 0.00219173397061506" rpy="0 0 0" />
       <mass value="1.44379265037903E-06" />
@@ -129,14 +129,14 @@
     </collision>
   </link>
 
-  <joint name="caster_front_joint" type="fixed">
-    <origin xyz="0.04755 0 -0.0275" rpy="0 0 0" />
+  <joint name="caster_right_joint" type="fixed">
+    <origin xyz="-0.1429 -0.1 -0.0275" rpy="0 0 0" />
     <parent link="base_link" />
-    <child link="caster_front_link" />
+    <child link="caster_right_link" />
     <axis xyz="0 0 0" />
   </joint>
   
-  <link name="caster_rear_link">
+  <link name="caster_left_link">
     <inertial>
       <origin xyz="3.8996812895542E-07 2.40073004698083E-07 0.00219173397061509" rpy="0 0 0" />
       <mass value="1.44379265037902E-06" />
@@ -159,10 +159,10 @@
     </collision>
   </link>
 
-  <joint name="caster_rear_joint" type="fixed">
-    <origin xyz="-0.04755 0 -0.0275" rpy="0 0 0" />
+  <joint name="caster_left_joint" type="fixed">
+    <origin xyz="-0.1429 0.1 -0.0275" rpy="0 0 0" />
     <parent link="base_link" />
-    <child link="caster_rear_link" />
+    <child link="caster_left_link" />
     <axis xyz="0 0 0" />
   </joint>
 
@@ -220,7 +220,7 @@
   </link>
 
   <joint name="laser_joint" type="fixed">
-    <origin xyz="-0.0050526 -0.0023221 0.1208" rpy="0 0 3.14" />
+    <origin xyz="-0.0050526 -0.0023221 0.1208" rpy="0 0 0" />
     <parent link="base_link" />
     <child link="laser_link" />
     <axis xyz="0 0 0" />

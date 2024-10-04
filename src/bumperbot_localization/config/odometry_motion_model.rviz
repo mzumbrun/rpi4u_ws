@@ -74,12 +74,12 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        caster_front_link:
+        caster_left_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        caster_rear_link:
+        caster_right_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false

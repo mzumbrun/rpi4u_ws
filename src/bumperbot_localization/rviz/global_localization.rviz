@@ -81,9 +81,9 @@ Visualization Manager:
           Value: true
         base_link:
           Value: true
-        caster_front_link:
+        caster_left_link:
           Value: true
-        caster_rear_link:
+        caster_right_link:
           Value: true
         imu_link:
           Value: true
@@ -107,9 +107,9 @@ Visualization Manager:
           odom:
             base_footprint:
               base_link:
-                caster_front_link:
+                caster_left_link:
                   {}
-                caster_rear_link:
+                caster_right_link:
                   {}
                 imu_link:
                   {}
