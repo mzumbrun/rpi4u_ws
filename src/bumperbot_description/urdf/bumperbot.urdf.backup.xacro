@@ -2,9 +2,6 @@
 
 <robot name="bumperbot" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <!-- Start GZ or Ignition depending on ROS 2 Version -->
-  <xacro:arg name="is_ignition" default="true"/>
-
   <!-- Load Simulated or Real Hardware Interfaces -->
   <xacro:arg name="is_sim" default="true"/>
 
@@ -19,7 +16,7 @@
   <link name="base_link">
     <inertial>
       <origin xyz="0 0 0.04" rpy="0.0 0.25 0.3" />
-      <mass value="8.2573504e-01"/>
+      <mass value="1.0"/>
       <inertia ixx="2.2124416e-02" ixy="-1.2294101e-04" ixz="3.4938785e-04"
                iyy="2.1193702e-02" iyz="-5.0120904e-05"
                izz="2.0064271e-02" />
@@ -29,7 +26,6 @@
       <geometry>
         <mesh filename="package://bumperbot_description/meshes/base_link.STL" />
       </geometry>
-      <material name="black"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -48,7 +44,7 @@
   <link name="wheel_right_link">
     <inertial>
       <origin xyz="0 -0.014 0" rpy="0 0 0" />
-      <mass value="0.0530086090966721" />
+      <mass value="1.0" />
       <inertia ixx="1.88176298336665E-05" ixy="-4.8444933029987E-10" ixz="1.88163708851143E-08"
                iyy="3.11510738647764E-05" iyz="-6.93560663069607E-11"
                izz="1.8801969558182E-05" />
@@ -58,7 +54,6 @@
       <geometry>
         <mesh filename="package://bumperbot_description/meshes/wheel_right_link.STL" />
       </geometry>
-      <material name="blue"/>
     </visual>
     <collision>
       <origin xyz="0 -0.015 0" rpy="1.57 0 0" />
@@ -79,7 +74,7 @@
     name="wheel_left_link">
     <inertial>
       <origin xyz="0 0.014 0" rpy="0 0 0" />
-      <mass value="0.0530086043217644" />
+      <mass value="1.0" />
       <inertia ixx="1.8792911368909E-05"  ixy="3.31256392204584E-10" ixz="-1.14082001662767E-08"
                iyy="3.11510738759073E-05" iyz="-3.60499245082192E-10"
                izz="1.88266886146847E-05" />
@@ -89,7 +84,6 @@
       <geometry>
         <mesh filename="package://bumperbot_description/meshes/wheel_left_link.STL" />
       </geometry>
-      <material name="blue"/>
     </visual>
     <collision>
       <origin xyz="0 0.015 0" rpy="-1.57 0 0" />
@@ -119,7 +113,6 @@
       <geometry>
         <mesh filename="package://bumperbot_description/meshes/caster_front_link.STL" />
       </geometry>
-      <material name="silver"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -149,7 +142,6 @@
       <geometry>
         <mesh filename="package://bumperbot_description/meshes/caster_rear_link.STL" />
       </geometry>
-      <material name="silver"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -160,7 +152,7 @@
   </link>
 
   <joint name="caster_rear_joint" type="fixed">
-    <origin xyz="-0.04755 0 -0.0275" rpy="0 0 0" />
+    <origin xyz="-0.1429 0 -0.0275" rpy="0 0 0" />
     <parent link="base_link" />
     <child link="caster_rear_link" />
     <axis xyz="0 0 0" />
@@ -179,7 +171,6 @@
       <geometry>
         <mesh filename="package://bumperbot_description/meshes/imu_link.STL" />
       </geometry>
-      <material name="blue"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -209,7 +200,6 @@
       <geometry>
         <mesh filename="package://bumperbot_description/meshes/laser_link.STL" />
       </geometry>
-      <material name="dark_grey"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -220,23 +210,10 @@
   </link>
 
   <joint name="laser_joint" type="fixed">
-    <origin xyz="-0.0050526 -0.0023221 0.1208" rpy="0 0 3.14" />
+    <origin xyz="-0.0050526 -0.0023221 0.8208" rpy="0 0 0" />
     <parent link="base_link" />
     <child link="laser_link" />
     <axis xyz="0 0 0" />
   </joint>
-
-  <material name="blue">
-    <color rgba="0 0 1 1"/>
-  </material>
-  <material name="black">
-    <color rgba="0 0 0 1"/>
-  </material>
-  <material name="silver">
-    <color rgba="0.79 0.82 0.93 1"/>
-  </material>
-  <material name="dark_grey">
-    <color rgba="0.3 0.3 0.3 1"/>
-  </material>
 
 </robot>

@@ -57,6 +57,11 @@ def generate_launch_description():
             "use_sim_time": "False"
         }.items()
     )
+    
+    imu_driver_node = Node(
+        package="bumperbot_firmware",
+        executable="mpu6050_driver.py"
+    )
 
     safety_stop = Node(
         package="bumperbot_utils",
@@ -88,6 +93,7 @@ def generate_launch_description():
         laser_driver,
         controller,
      #   joystick,
+        imu_driver_node,
      #   safety_stop,
         localization,
         slam
