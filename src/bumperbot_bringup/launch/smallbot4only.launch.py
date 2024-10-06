@@ -93,7 +93,7 @@ def generate_launch_description():
         laser_driver,
         controller,
      #   joystick,
-        imu_driver_node,
+      #  imu_driver_node,
      #   safety_stop,
         localization,
         slam
