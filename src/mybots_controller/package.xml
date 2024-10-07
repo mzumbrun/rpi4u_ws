@@ -3,9 +3,9 @@
   <name>mybots_controller</name>
   <version>0.0.0</version>
   <description>The mybots_controller package</description>
-  <maintainer email="antonio.brandi@outlook.it">Antonio Brandi</maintainer>
+  <maintainer email="m.l.zumbrunnen@gmail.com">MikeZ</maintainer>
   <license>Apache 2.0</license>
-  <author email="antonio.brandi@outlook.it">Antonio Brandi</author>
+  <author email="MikeZ.brandi@outlook.it">Antonio Brandi</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>

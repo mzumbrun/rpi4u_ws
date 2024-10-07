@@ -4,7 +4,7 @@
   <name>mybots_mapping</name>
   <version>0.0.0</version>
   <description>mybots Mapping Package</description>
-  <maintainer email="antonio.brandi@outlook.it">Antonio Brandi</maintainer>
+  <maintainer email="m.l.zumbrunnen@gmail.com">MikeZ</maintainer>
   <license>Apache 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

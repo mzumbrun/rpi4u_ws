@@ -14,7 +14,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='user',
-    maintainer_email='antonio.brandi@outlook.it',
+    maintainer_email='m.l.zumbrunnen@gmail.com',
     description='ROS 2 Code Examples',
     license='Apache 2.0',
     tests_require=['pytest'],
