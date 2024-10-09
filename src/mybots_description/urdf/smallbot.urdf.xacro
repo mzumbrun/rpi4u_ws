@@ -18,23 +18,23 @@
   
   <link name="base_link">
     <inertial>
-      <origin xyz="0 0 0.04" rpy="0.0 0.25 0.3" />
-      <mass value="8.2573504e-01"/>
-      <inertia ixx="2.2124416e-02" ixy="-1.2294101e-04" ixz="3.4938785e-04"
-               iyy="2.1193702e-02" iyz="-5.0120904e-05"
-               izz="2.0064271e-02" />
+      <origin xyz="-0.070489 -0.000718 0.040699" rpy="0.0 0.0 0.0" />
+      <mass value="1.409448"/>
+      <inertia ixx="0.011114" ixy="0.000188" ixz="-0.005821"
+               iyy="0.017229" iyz="0.000127"
+               izz="0.019734" />
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/base_link.STL" />
+        <mesh filename="package://mybots_description/meshes/smallbot_base_link.stl" />
       </geometry>
-      <material name="black"/>
+      <material name="dark_grey"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/base_link.STL" />
+        <mesh filename="package://mybots_description/meshes/smallbot_base_link.stl" />
       </geometry>
     </collision>
   </link>
@@ -54,9 +54,9 @@
                izz="1.8801969558182E-05" />
     </inertial>
     <visual>
-      <origin xyz="0 0 0" rpy="1.57 0 0" />
+      <origin xyz="-0.0 0.014 0.0" rpy="1.57 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/wheel_right_link.STL" />
+        <mesh filename="package://mybots_description/meshes/smallbot_wheel.stl" />
       </geometry>
       <material name="blue"/>
     </visual>
@@ -78,21 +78,21 @@
   <link
     name="wheel_left_link">
     <inertial>
-      <origin xyz="0 0.014 0" rpy="0 0 0" />
+      <origin xyz="0 -0.014 0" rpy="0 0 0" />
       <mass value="0.0530086043217644" />
       <inertia ixx="1.8792911368909E-05"  ixy="3.31256392204584E-10" ixz="-1.14082001662767E-08"
                iyy="3.11510738759073E-05" iyz="-3.60499245082192E-10"
                izz="1.88266886146847E-05" />
     </inertial>
     <visual>
-      <origin xyz="0 0 0" rpy="-1.57 0 0" />
+      <origin xyz="0 -0.014 0" rpy="-1.57 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/wheel_left_link.STL" />
+        <mesh filename="package://mybots_description/meshes/smallbot_wheel.stl" />
       </geometry>
       <material name="blue"/>
     </visual>
     <collision>
-      <origin xyz="0 0.015 0" rpy="-1.57 0 0" />
+      <origin xyz="0 -0.014 0" rpy="-1.57 0 0" />
       <geometry>
         <sphere radius="0.033"/>
       </geometry>
@@ -108,29 +108,29 @@
 
   <link name="caster_right_link">
     <inertial>
-      <origin xyz="3.89968128948481E-07 2.40073004698083E-07 0.00219173397061506" rpy="0 0 0" />
-      <mass value="1.44379265037903E-06" />
-      <inertia ixx="7.23075276010246E-11" ixy="-6.10956883467859E-16" ixz="2.22849693525031E-15"
-               iyy="3.8713793085917E-11"  iyz="2.93909858781952E-15"
-               izz="1.00967486676306E-10" />
+      <origin xyz=".000112 -0.0155 -.00818" rpy="0 0 0" />
+      <mass value="0.027976" />
+      <inertia ixx="0.000019" ixy="0" ixz="0"
+               iyy="0.000007"  iyz="0.000006"
+               izz="0.000014" />
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/caster_front_link.STL" />
+        <mesh filename="package://mybots_description/meshes/smallbot_caster_link.stl" />
       </geometry>
       <material name="silver"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <sphere radius="0.005"/>
+        <sphere radius="0.051"/>
       </geometry>
     </collision>
   </link>
 
   <joint name="caster_right_joint" type="fixed">
-    <origin xyz="-0.1429 -0.1 -0.0275" rpy="0 0 0" />
+    <origin xyz="-0.137 -0.095 .0133" rpy="1.57 0 1.57" />
     <parent link="base_link" />
     <child link="caster_right_link" />
     <axis xyz="0 0 0" />
@@ -138,29 +138,29 @@
   
   <link name="caster_left_link">
     <inertial>
-      <origin xyz="3.8996812895542E-07 2.40073004698083E-07 0.00219173397061509" rpy="0 0 0" />
-      <mass value="1.44379265037902E-06" />
-      <inertia ixx="7.23075276010246E-11" ixy="-6.10956872363424E-16" ixz="2.22849693527207E-15"
-               iyy="3.87137930859167E-11" iyz="2.939098587861E-15"
-               izz="1.00967486676306E-10" />
+      <origin xyz=".000112 -0.0155 -.00818" rpy="0 0 0" />
+      <mass value="0.027976" />
+      <inertia ixx="0.000019" ixy="0" ixz="0"
+               iyy="0.000007"  iyz="0.000006"
+               izz="0.000014" />
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/caster_rear_link.STL" />
+        <mesh filename="package://mybots_description/meshes/smallbot_caster_link.stl" />
       </geometry>
       <material name="silver"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <sphere radius="0.005"/>
+        <sphere radius="0.051"/>
       </geometry>
     </collision>
   </link>
 
   <joint name="caster_left_joint" type="fixed">
-    <origin xyz="-0.1429 0.1 -0.0275" rpy="0 0 0" />
+    <origin xyz="-0.137 0.095 0.0133" rpy="1.57 0 1.57" />
     <parent link="base_link" />
     <child link="caster_left_link" />
     <axis xyz="0 0 0" />
@@ -175,14 +175,14 @@
                izz="2.30279421279312E-08" />
     </inertial>
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 3.14" />
       <geometry>
         <mesh filename="package://mybots_description/meshes/imu_link.STL" />
       </geometry>
       <material name="blue"/>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 1.57" />
       <geometry>
         <mesh filename="package://mybots_description/meshes/imu_link.STL" />
       </geometry>
@@ -190,7 +190,7 @@
   </link>
   
   <joint name="imu_joint" type="fixed">
-    <origin xyz="0 0 0.0698986241758014" rpy="0 0 0" />
+    <origin xyz="-0.04016 0.049755 0.064953" rpy="0 0 1.57" />
     <parent link="base_link" />
     <child link="imu_link" />
     <axis xyz="0 0 0" />
@@ -198,29 +198,29 @@
 
   <link name="laser_link">
     <inertial>
-      <origin xyz="-0.011945780406062 -0.000381929217680526 -0.0170649378129477" rpy="0 0 0" />
-      <mass value="0.073084435549317" />
-      <inertia ixx="1.96074931730795E-05" ixy="-3.62091076640009E-07" ixz="4.28230084046735E-07"
-               iyy="2.40983835136327E-05" iyz="1.50180909250652E-08"
-               izz="4.14184164228595E-05" />
+      <origin xyz="0.005399 -0.010876 0.002517" rpy="0 0 0" />
+      <mass value="0.07308" />
+      <inertia ixx="0.000039" ixy="-0.000011" ixz="0.000003"
+               iyy="0.000063" iyz="-0.000005"
+               izz="0.000057" />
     </inertial>
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="1.57 0 3.14" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/laser_link.STL" />
+        <mesh filename="package://mybots_description/meshes/lidarA1M8.stl" />
       </geometry>
-      <material name="dark_grey"/>
+      <material name="black"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/laser_link.STL" />
+        <mesh filename="package://mybots_description/meshes/lidarA1M8.stl" />
       </geometry>
     </collision>
   </link>
 
   <joint name="laser_joint" type="fixed">
-    <origin xyz="-0.0050526 -0.0023221 0.1208" rpy="0 0 0" />
+    <origin xyz="-0.013456 0.000513 0.140452" rpy="0 0 0" />
     <parent link="base_link" />
     <child link="laser_link" />
     <axis xyz="0 0 0" />

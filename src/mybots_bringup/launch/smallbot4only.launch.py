@@ -19,7 +19,7 @@ def generate_launch_description():
         os.path.join(
             get_package_share_directory("mybots_firmware"),
             "launch",
-            "hardware_interface.launch.py"
+            "hardware_interface_smallbot.launch.py"
         ),
     )
 
@@ -93,8 +93,8 @@ def generate_launch_description():
         laser_driver,
         controller,
      #   joystick,
-      #  imu_driver_node,
-     #   safety_stop,
+        imu_driver_node,
+        safety_stop,
         localization,
         slam
     ])
