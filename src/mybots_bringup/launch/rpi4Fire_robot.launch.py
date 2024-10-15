@@ -19,7 +19,7 @@ def generate_launch_description():
         os.path.join(
             get_package_share_directory("mybots_firmware"),
             "launch",
-            "hardware_interface.launch.py"
+            "hardware_interface_smallbot.launch.py"
         ),
     )
 
@@ -43,7 +43,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             "use_simple_controller": "False",
-            "use_python": "False"
+            "use_python": "True"
         }.items(),
     )
     
@@ -94,7 +94,7 @@ def generate_launch_description():
         controller,
      #   joystick,
         imu_driver_node,
-     #   safety_stop,
+        safety_stop,
      #   localization,
      #   slam
     ])
