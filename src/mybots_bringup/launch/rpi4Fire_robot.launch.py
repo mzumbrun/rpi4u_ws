@@ -65,7 +65,7 @@ def generate_launch_description():
 
     safety_stop = Node(
         package="mybots_utils",
-        executable="safety_stop",
+        executable="safety_stop.py",
         output="screen",
     )
 
@@ -88,7 +88,7 @@ def generate_launch_description():
     )
     
     return LaunchDescription([
-     #   use_slam_arg,
+        use_slam_arg,
         hardware_interface,
      #   laser_driver,
         controller,
