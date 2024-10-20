@@ -1,5 +1,6 @@
 import os
 from os import pathsep
+from pathlib import Path
 from ament_index_python.packages import get_package_share_directory, get_package_prefix
 
 from launch import LaunchDescription
@@ -12,13 +13,12 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
+      
     mybots_description = get_package_share_directory("mybots_description")
-    mybots_description_prefix = get_package_prefix("mybots_description")
-    gazebo_ros_dir = get_package_share_directory("gazebo_ros")
+   # mybots_description_prefix = get_package_prefix("mybots_description")
 
     model_arg = DeclareLaunchArgument(name="model", default_value=os.path.join(
-                                      mybots_description, "urdf", "smallbot.urdf.xacro"
-                                      ),
+                                      mybots_description, "urdf", "smallbot.urdf.xacro"),
                                       description="Absolute path to robot urdf file"
     )
 
@@ -30,11 +30,15 @@ def generate_launch_description():
             PythonExpression(expression=["'", LaunchConfiguration("world_name"), "'", " + '.world'"])
         ]
     )
-
-    model_path = os.path.join(mybots_description, "models")
-    model_path += pathsep + os.path.join(mybots_description_prefix, "share")
-
-    env_var = SetEnvironmentVariable("GAZEBO_MODEL_PATH", model_path)
+    
+    
+    model_path = str(Path(mybots_description).parent.resolve())
+    model_path += pathsep + os.path.join(get_package_share_directory("mybots_description"), 'models')
+  
+    gazebo_resource_path = SetEnvironmentVariable(
+        "GZ_SIM_RESOURCE_PATH",
+        model_path
+        )
 
     robot_description = ParameterValue(Command(["xacro ", LaunchConfiguration("model")]),
                                        value_type=str)
@@ -46,34 +50,38 @@ def generate_launch_description():
                      "use_sim_time": True}]
     )
 
-    start_gazebo_server = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(gazebo_ros_dir, "launch", "gzserver.launch.py")
-        ),
-        launch_arguments={
-            "world": world_path,
-        }.items(),
+    gazebo = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([os.path.join(
+                    get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")]),
+                    launch_arguments={'gz_args': ['-r -v4 ', world_path], 'on_exit_shutdown': 'true'}.items()
+             )
+
+    gz_spawn_entity = Node(
+        package="ros_gz_sim",
+        executable="create",
+        output="screen",
+        arguments=["-topic", "robot_description",
+                   "-name", "smallbot"],
     )
 
-    start_gazebo_client = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(gazebo_ros_dir, "launch", "gzclient.launch.py")
-        )
-    )
-
-    spawn_robot = Node(package="gazebo_ros", executable="spawn_entity.py",
-                        arguments=["-entity", "mybots",
-                                   "-topic", "robot_description",
-                                  ],
-                        output="screen"
+    bridge_params = os.path.join(mybots_description,'config','gz_bridge.yaml')
+    ros_gz_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=[
+            '--ros-args',
+            '-p',
+            f'config_file:={bridge_params}',
+        ]
     )
 
     return LaunchDescription([
-        env_var,
+     #   env_var,
         model_arg,
         world_name_arg,
-        start_gazebo_server,
-        start_gazebo_client,
+        gazebo_resource_path,
         robot_state_publisher_node,
-        spawn_robot
+        gazebo,
+        gz_spawn_entity,
+        ros_gz_bridge
     ])

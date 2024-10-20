@@ -2,9 +2,6 @@
 
 <robot name="mybots" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <!-- Start GZ or Ignition depending on ROS 2 Version -->
-  <xacro:arg name="is_ignition" default="true"/>
-
   <!-- Load Simulated or Real Hardware Interfaces -->
   <xacro:arg name="is_sim" default="true"/>
 

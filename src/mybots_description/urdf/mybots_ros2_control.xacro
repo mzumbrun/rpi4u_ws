@@ -6,7 +6,7 @@
         <!-- ros2_control Gazebo -->
         <xacro:if value="$(arg is_sim)">
             <hardware>
-                <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+                <plugin>gz_ros2_control/GazeboSimSystem</plugin>
             </hardware>
         </xacro:if>
 
@@ -37,7 +37,27 @@
             <state_interface name="position" />
             <state_interface name="velocity" />
         </joint>
+
+        <transmission name="wheel_right_transmission">
+            <plugin>transmission_interface/SimpleTransmission</plugin>
+            <actuator name="wheel_right_motor" role="actuator_right"/>
+            <joint name="wheel_right_joint"    role="joint_right">
+            <mechanical_reduction>1.0</mechanical_reduction>
+            </joint>
+        </transmission>
+
+        <transmission name="wheel_left_transmission">
+            <plugin>transmission_interface/SimpleTransmission</plugin>
+            <actuator name="wheel_left_motor" role="actuator_left"/>
+            <joint name="wheel_left_joint"    role="joint_left">
+            <mechanical_reduction>1.0</mechanical_reduction>
+            </joint>
+        </transmission>
         
     </ros2_control>
-
+    <gazebo>
+        <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
+            <parameters>$(find mybots_controller)/config/mybots_controllers.yaml</parameters>
+        </plugin>
+    </gazebo>
 </robot>
