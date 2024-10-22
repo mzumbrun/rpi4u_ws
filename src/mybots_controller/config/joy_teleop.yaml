@@ -3,7 +3,8 @@ joy_teleop:
     move:
       type: topic
       interface_type: geometry_msgs/msg/TwistStamped
-      topic_name: input_joy/cmd_vel_stamped
+      topic_name: mybots_controller/cmd_vel # was for twist mux - input_joy/cmd_vel_stamped
+      # topic_name: input_joy/cmd_vel_stamped
       deadman_buttons: [5]
       axis_mappings:
         twist-linear-x:
