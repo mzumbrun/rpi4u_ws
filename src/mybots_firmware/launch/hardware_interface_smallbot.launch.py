@@ -9,21 +9,16 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
-    robot_description = ParameterValue(
-        Command(
-            [
-                "xacro ",
-                os.path.join(
-                    get_package_share_directory("mybots_description"),
-                    "urdf",
-                    "smallbot.urdf.xacro",
-                ),
-                " is_sim:=False"
-            ]
-        ),
-        value_type=str,
-    )
+    mybots_description = get_package_share_directory("mybots_description")
 
+    model_arg = DeclareLaunchArgument(name="model", default_value=os.path.join(
+                                      mybots_description, "urdf", "smallbot.urdf.xacro"),
+                                      description="Absolute path to robot urdf file"
+    )
+   
+    robot_description = ParameterValue(Command(["xacro ", LaunchConfiguration("model")]),
+                                       value_type=str)
+   
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -47,6 +42,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            model_arg,
             robot_state_publisher_node,
             controller_manager,
  
