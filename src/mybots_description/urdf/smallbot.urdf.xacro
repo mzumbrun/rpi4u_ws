@@ -6,7 +6,9 @@
   <xacro:arg name="is_sim" default="true"/>
 
   <!-- Include Gazebo Parameters -->
-  <xacro:include filename="$(find mybots_description)/urdf/mybots_gazebo.xacro" />
+    <xacro:if value="$(arg is_sim)">
+      <xacro:include filename="$(find mybots_description)/urdf/mybots_gazebo.xacro" />
+    </xacro:if>
 
   <!-- Include ros2_control Plugins -->
   <xacro:include filename="$(find mybots_description)/urdf/mybots_ros2_control.xacro" />
