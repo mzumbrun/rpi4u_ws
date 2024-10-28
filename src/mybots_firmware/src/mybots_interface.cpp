@@ -71,6 +71,7 @@ CallbackReturn mybotsInterface::on_init(const hardware_interface::HardwareInfo &
   position_states_.reserve(info_.joints.size());
   velocity_states_.reserve(info_.joints.size());
   last_run_ = rclcpp::Clock().now();
+  last_run2_ = rclcpp::Clock().now();
 
   return CallbackReturn::SUCCESS;
 }

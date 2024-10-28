@@ -20,6 +20,12 @@
         </xacro:unless>
         
         <!-- ros2_control Common Interfaces -->
+        <gazebo>
+            <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <parameters>$(find mybots_controller)/config/mybots_controllers.yaml</parameters>
+                <parameters>$(find mybots_controller)/config/config/gaz_ros2_ctl_use_sim.yaml</parameters>
+            </plugin>
+        </gazebo>
         <joint name="wheel_right_joint">
             <command_interface name="velocity">
               <param name="min">-1</param>
@@ -55,9 +61,5 @@
         </transmission>
         
     </ros2_control>
-    <gazebo>
-        <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
-            <parameters>$(find mybots_controller)/config/mybots_controllers.yaml</parameters>
-        </plugin>
-    </gazebo>
+
 </robot>

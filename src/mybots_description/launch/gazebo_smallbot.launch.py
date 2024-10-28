@@ -1,7 +1,7 @@
 import os
 from os import pathsep
 from pathlib import Path
-from ament_index_python.packages import get_package_share_directory, get_package_prefix
+from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
@@ -15,7 +15,6 @@ from launch_ros.parameter_descriptions import ParameterValue
 def generate_launch_description():
       
     mybots_description = get_package_share_directory("mybots_description")
-   # mybots_description_prefix = get_package_prefix("mybots_description")
 
     model_arg = DeclareLaunchArgument(name="model", default_value=os.path.join(
                                       mybots_description, "urdf", "smallbot.urdf.xacro"),
@@ -40,8 +39,12 @@ def generate_launch_description():
         model_path
         )
 
-    robot_description = ParameterValue(Command(["xacro ", LaunchConfiguration("model")]),
-                                       value_type=str)
+    robot_description = ParameterValue(Command([
+        "xacro ",
+        LaunchConfiguration("model")
+        ]),                                    
+        value_type=str
+        )
 
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
@@ -53,7 +56,7 @@ def generate_launch_description():
     gazebo = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")]),
-                    launch_arguments={'gz_args': ['-r -v4 ', world_path], 'on_exit_shutdown': 'true'}.items()
+                    launch_arguments={'gz_args': PythonExpression(expression=["'", world_path, " -v 4 -r'"])}.items()
              )
 
     gz_spawn_entity = Node(
@@ -72,11 +75,13 @@ def generate_launch_description():
             '--ros-args',
             '-p',
             f'config_file:={bridge_params}',
+        ],
+        remappings=[
+            ('/imu', '/imu/out'),
         ]
     )
 
     return LaunchDescription([
-     #   env_var,
         model_arg,
         world_name_arg,
         gazebo_resource_path,

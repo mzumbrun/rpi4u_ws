@@ -48,7 +48,7 @@ def generate_launch_description():
 
     safety_stop = Node(
         package="mybots_utils",
-        executable="safety_stop",
+        executable="safety_stop.py",
         output="screen",
         parameters=[{"use_sim_time": True}]
     )

@@ -1,14 +1,19 @@
 twist_mux:
   ros__parameters:
     topics:
-      joystick:
- #      topic   : input_joy/cmd_vel_stamped
- #       topic   : joy_vel
-        topic   : mybots_controller/cmd_vel
-#      topic   : mybots_controller/cmd_vel_out
+      navigation:
+        topic   : nav_vel
         timeout : 0.5
-        priority: 99
-      keyboard: 
+        priority: 10
+      joystick:
+        topic   : joy_vel
+        timeout : 0.5
+        priority: 100
+      keyboard:
         topic   : key_vel
         timeout : 0.5
         priority: 90
+      tablet:
+        topic   : tab_vel
+        timeout : 0.5
+        priority: 100

@@ -4,19 +4,19 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.actions import IncludeLaunchDescription
 from launch_ros.actions import Node
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 
 def generate_launch_description():
     
-   # mybots_controller_pkg = get_package_share_directory('mybots_controller')
+    mybots_controller_pkg = get_package_share_directory('mybots_controller')
     
     use_sim_time_arg = DeclareLaunchArgument(name="use_sim_time", default_value="True",
-                                      description="Use simulated time"
-    )
-
+                                      description="Use simulated time")                             
+           
     joy_teleop = Node(
         package="joy_teleop",
         executable="joy_teleop",
@@ -28,7 +28,7 @@ def generate_launch_description():
         package="joy",
         executable="joy_node",
         name="joystick",
-        parameters=[os.path.join(get_package_share_directory("mybots_controller"), "config", "joy_config.yaml"),
+        parameters=[os.path.join(mybots_controller_pkg, "config", "joy_config.yaml"),
                     {"use_sim_time": LaunchConfiguration("use_sim_time")}]                    
     )
     
@@ -39,18 +39,17 @@ def generate_launch_description():
             "twist_mux_launch.py"
         ),
         launch_arguments={
-           # "cmd_vel_out": "mybots_controller/cmd_vel_stamped", #  ** OCT23 no **
-            "cmd_vel_out": "mybots_controller/cmd_vel", #  ** OCT23 works**
-            "config_locks": os.path.join(get_package_share_directory('mybots_controller'), "config", "twist_mux_locks.yaml"),
-            "config_topics": os.path.join(get_package_share_directory('mybots_controller'), "config", "twist_mux_topics.yaml"),
-            "config_joy": os.path.join(get_package_share_directory('mybots_controller'), "config", "joystick.yaml"),
+            "cmd_vel_out": "mybots_controller/cmd_vel_unstamped",
+            "config_locks": os.path.join(mybots_controller_pkg, "config", "twist_mux_locks.yaml"),
+            "config_topics": os.path.join(mybots_controller_pkg, "config", "twist_mux_topics.yaml"),
+            "config_joy": os.path.join(mybots_controller_pkg, "config", "twist_mux_joy.yaml"),
             "use_sim_time": LaunchConfiguration("use_sim_time"),
         }.items(),
     )
-
+    
     twist_relay_node = Node(
         package="mybots_controller",
-        executable="twist_relay",
+        executable="twist_relay.py",
         name="twist_relay",
         parameters=[{"use_sim_time": LaunchConfiguration("use_sim_time")}]
     )
@@ -59,7 +58,7 @@ def generate_launch_description():
             use_sim_time_arg,
             joy_teleop,
             joy_node,
-        #    twist_mux_launch,
-        #    twist_relay_node,
+            twist_mux_launch,
+            twist_relay_node,
         ]
     )

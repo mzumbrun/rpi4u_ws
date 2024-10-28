@@ -2,11 +2,8 @@ joy_teleop:
   ros__parameters:
     move:
       type: topic
-      interface_type: geometry_msgs/msg/TwistStamped # was Stamped
-      topic_name: mybots_controller/cmd_vel # **OCT23 works but no safety stop**
-      # topic_name: mybots_controller/cmd_vel_stamped # **OCT23 no joystick control with **
-      # topic_name: input_joy/cmd_vel_stamped # no joystick
-      # topic_name: input_joy/cmd_vel 
+      interface_type: geometry_msgs/msg/TwistStamped
+      topic_name: input_joy/cmd_vel_stamped
       deadman_buttons: [5]
       axis_mappings:
         twist-linear-x:
