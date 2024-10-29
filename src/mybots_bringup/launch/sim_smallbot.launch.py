@@ -103,7 +103,7 @@ def generate_launch_description():
         use_slam_arg,
         gazebo,
         controller,
-        joystick,
+      #  joystick,
         safety_stop,
         localization,
         slam,

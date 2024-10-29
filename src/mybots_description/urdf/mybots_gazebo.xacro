@@ -54,12 +54,27 @@
     <material>Gazebo/FlatBlack</material>
   </gazebo>
 
+  <!-- ROS 2 Control -->
+  <gazebo>
+
+      <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
+        <parameters>$(find mybots_controller)/config/mybots_controllers.yaml</parameters>
+      </plugin>
+      <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu">
+      </plugin>
+      <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+        <render_engine>ogre2</render_engine>
+      </plugin>
+
+  </gazebo>
 
   <!-- IMU -->
   <gazebo reference="imu_link">
     <sensor name="imu" type="imu">
         <always_on>true</always_on>
         <update_rate>100</update_rate>
+        <gz_frame_id>imu_link</gz_frame_id>
+        <topic>imu</topic>
         <imu>
           <angular_velocity>
             <x>
