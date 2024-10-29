@@ -73,6 +73,9 @@ def generate_launch_description():
             '-p',
             f'config_file:={bridge_params}',
         ]
+        remappings=[
+            ('/imu', '/imu/out'),
+        ]
     )
 
     return LaunchDescription([
