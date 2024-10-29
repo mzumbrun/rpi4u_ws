@@ -72,7 +72,7 @@ def generate_launch_description():
             '--ros-args',
             '-p',
             f'config_file:={bridge_params}',
-        ]
+        ],
         remappings=[
             ('/imu', '/imu/out'),
         ]
