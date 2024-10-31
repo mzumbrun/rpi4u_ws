@@ -1,4 +1,4 @@
-joystick_relay:
+twist_turbo_node:
   ros__parameters:
     priority: True
     turbo:

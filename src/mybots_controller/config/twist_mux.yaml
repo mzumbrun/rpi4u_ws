@@ -1,0 +1,22 @@
+twist_mux:
+  ros__parameters:
+    topics:
+      navigation:
+        topic   : cmd_vel
+        timeout : 0.5
+        priority: 10
+      tracker:
+        topic   : cmd_vel_tracker
+        timeout : 0.5
+        priority: 20
+      joystick:
+        topic   : input_joy/cmd_vel_stamped
+        timeout : 0.5
+        priority: 100  
+twist_mux:
+  ros__parameters:
+    locks:
+      safety_stop:
+        topic   : safety_stop
+        timeout : 0.0
+        priority: 255

@@ -1,4 +1,4 @@
-twist_mux:
+twist_mux_node:
   ros__parameters:
     locks:
       safety_stop:
