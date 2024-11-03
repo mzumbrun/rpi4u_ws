@@ -2,6 +2,15 @@
 
 <robot name="mybots" xmlns:xacro="http://ros.org/wiki/xacro">
 
+    <!-- ROS 2 Control -->
+    <gazebo>
+      <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
+        <parameters>$(find mybots_controller)/config/mybots_controllers.yaml</parameters>
+      </plugin>
+  
+  </gazebo>
+
+
   <!-- Wheels -->
   <gazebo reference="wheel_left_link">
     <mu1>1000000000000000.0</mu1>
@@ -41,20 +50,6 @@
     <minDepth>0.001</minDepth>
     <maxVel>1.0</maxVel>
   </gazebo>
-
-  <!-- ROS 2 Control -->
-  <gazebo>
-    <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
-      <parameters>$(find mybots_controller)/config/mybots_controllers.yaml</parameters>
-    </plugin>
-    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu">
-    </plugin>
-    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
-      <render_engine>ogre2</render_engine>
-    </plugin>
- 
-</gazebo>
-
 
   <!-- IMU -->
   <gazebo reference="imu_link">
