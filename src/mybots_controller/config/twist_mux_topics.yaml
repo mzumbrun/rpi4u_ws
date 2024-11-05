@@ -1,8 +1,8 @@
-twist_mux_node:
+twist_mux:
   ros__parameters:
     topics:
       joystick:
-#        topic   : input_joy/cmd_vel # was joy_vel
+        # topic   : input_joy/cmd_vel # was joy_vel
         topic   : joy_vel
         timeout : 0.5
         priority: 99
