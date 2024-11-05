@@ -19,7 +19,7 @@ def generate_launch_description():
         os.path.join(
             get_package_share_directory("mybots_firmware"),
             "launch",
-            "hardware_interface.launch.py"
+            "hardware_interface_smallbot.launch.py"
         ),
     )
 
