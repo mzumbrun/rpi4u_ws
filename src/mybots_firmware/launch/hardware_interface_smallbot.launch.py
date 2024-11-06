@@ -4,6 +4,7 @@ from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
 from launch.substitutions import Command, LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
@@ -15,6 +16,11 @@ def generate_launch_description():
     
     use_sim_time_arg = DeclareLaunchArgument("use_sim_time", default_value="false")
     use_ros2_control_arg = DeclareLaunchArgument("use_ros2_control", default_value='true')
+    
+    model_arg = DeclareLaunchArgument(name="model", default_value=os.path.join(
+                                      get_package_share_directory("mybots_description"), "urdf", "smallbot.urdf.xacro"),
+                                      description="Absolute path to robot urdf file"
+    )
 
     # Process the URDF file
     pkg_path = os.path.join(get_package_share_directory('mybots_description'))
@@ -31,7 +37,8 @@ def generate_launch_description():
         parameters=[params]
     )
     
-    robot_description = Command(['ros2 param get --hide-type /robot_state_publisher robot_description'])
+    robot_description = ParameterValue(Command(["xacro ", LaunchConfiguration("model")]),
+                                       value_type=str)
 
     controller_manager = Node(
         package="controller_manager",
@@ -52,6 +59,7 @@ def generate_launch_description():
         [
             use_sim_time_arg,
             use_ros2_control_arg,
+            model_arg,
             robot_state_publisher_node,
             controller_manager,
  
