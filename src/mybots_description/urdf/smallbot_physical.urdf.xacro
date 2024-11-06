@@ -30,7 +30,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/smallbot_base_link.stl" />
+        <mesh filename="file://$(find mybots_description)/meshes/smallbot_base_link.stl" />
       </geometry>
       <material name="dark_grey"/>
     </visual>
