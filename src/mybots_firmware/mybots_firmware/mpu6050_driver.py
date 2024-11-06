@@ -66,20 +66,20 @@ class MPU6050_Driver(Node):
 
     def init_i2c(self):
         try:
-            self.bus_ = smbus.SMBus(1)
-            self.bus_.write_byte_data(DEVICE_ADDRESS, SMPLRT_DIV, 7)
-            self.bus_.write_byte_data(DEVICE_ADDRESS, PWR_MGMT_1, 1)
-            self.bus_.write_byte_data(DEVICE_ADDRESS, CONFIG, 0)
-            self.bus_.write_byte_data(DEVICE_ADDRESS, GYRO_CONFIG, 24)
-            self.bus_.write_byte_data(DEVICE_ADDRESS, INT_ENABLE, 1)
+            self.my_bus = smbus.SMBus(1)
+            self.my_bus.write_byte_data(DEVICE_ADDRESS, SMPLRT_DIV, 7)
+            self.my_bus.write_byte_data(DEVICE_ADDRESS, PWR_MGMT_1, 1)
+            self.my_bus.write_byte_data(DEVICE_ADDRESS, CONFIG, 0)
+            self.my_bus.write_byte_data(DEVICE_ADDRESS, GYRO_CONFIG, 24)
+            self.my_bus.write_byte_data(DEVICE_ADDRESS, INT_ENABLE, 1)
             self.is_connected_ = True
         except OSError:
             self.is_connected_ = False
         
     def read_raw_data(self, addr):
         #Accelero and Gyro value are 16-bit
-        high = self.bus_.read_byte_data(DEVICE_ADDRESS, addr)
-        low = self.bus_.read_byte_data(DEVICE_ADDRESS, addr+1)
+        high = self.my_bus.read_byte_data(DEVICE_ADDRESS, addr)
+        low = self.my_bus.read_byte_data(DEVICE_ADDRESS, addr+1)
         
         #concatenate higher and lower value
         value = ((high << 8) | low)
