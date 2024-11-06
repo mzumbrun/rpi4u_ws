@@ -91,6 +91,14 @@ def generate_launch_description():
         condition=IfCondition(use_slam)
     )
     
+    include_imu_localization = IncludeLaunchDescription(
+        os.path.join(
+            get_package_share_directory("mybots_localization"),
+            "launch",
+            "local_localization.launch.py"
+        ),
+    )
+    
     return LaunchDescription([
         use_slam_arg,
         hardware_interface,
@@ -100,5 +108,6 @@ def generate_launch_description():
         imu_driver_node,
         safety_stop,
         localization,
-        slam
+        slam,
+        include_imu_localization
     ])
