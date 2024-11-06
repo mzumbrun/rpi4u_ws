@@ -37,7 +37,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/smallbot_base_link.stl" />
+        <mesh filename="file://$(find mybots_description)/meshes/smallbot_base_link.stl" />
       </geometry>
     </collision>
   </link>
@@ -59,7 +59,7 @@
     <visual>
       <origin xyz="-0.0 0.014 0.0" rpy="1.57 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/smallbot_wheel.stl" />
+        <mesh filename="file://$(find mybots_description)/meshes/smallbot_wheel.stl" />
       </geometry>
       <material name="blue"/>
     </visual>
@@ -90,7 +90,7 @@
     <visual>
       <origin xyz="0 -0.014 0" rpy="-1.57 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/smallbot_wheel.stl" />
+        <mesh filename="file://$(find mybots_description)/meshes/smallbot_wheel.stl" />
       </geometry>
       <material name="blue"/>
     </visual>
@@ -120,7 +120,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/smallbot_caster_link.stl" />
+        <mesh filename="file://$(find mybots_description)/meshes/smallbot_caster_link.stl" />
       </geometry>
       <material name="silver"/>
     </visual>
@@ -150,7 +150,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/smallbot_caster_link.stl" />
+        <mesh filename="file://$(find mybots_description)/meshes/smallbot_caster_link.stl" />
       </geometry>
       <material name="silver"/>
     </visual>
@@ -180,14 +180,14 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 3.14" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/imu_link.STL" />
+        <mesh filename="file://$(find mybots_description)/meshes/imu_link.STL" />
       </geometry>
       <material name="blue"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 1.57" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/imu_link.STL" />
+        <mesh filename="file://$(find mybots_description)/meshes/imu_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -210,14 +210,14 @@
     <visual>
       <origin xyz="0 0 0" rpy="1.57 0 3.14" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/lidarA1M8.stl" />
+        <mesh filename="file://$(find mybots_description)/meshes/lidarA1M8.stl" />
       </geometry>
       <material name="black"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://mybots_description/meshes/lidarA1M8.stl" />
+        <mesh filename="file://$(find mybots_description)/meshes/lidarA1M8.stl" />
       </geometry>
     </collision>
   </link>
