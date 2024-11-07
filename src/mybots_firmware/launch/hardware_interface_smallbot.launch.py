@@ -40,7 +40,7 @@ def generate_launch_description():
     #robot_description = ParameterValue(Command(["xacro ", LaunchConfiguration("model")]),
     #                                   value_type=str)
     
-    delay_controller_manager = TimerAction(period=3.0, actions=[controller_manager])
+    #delay_controller_manager = TimerAction(period=3.0, actions=[controller_manager])
     
     
     robot_description = Command(['ros2 param get --hide-type /robot_state_publisher robot_description'])
