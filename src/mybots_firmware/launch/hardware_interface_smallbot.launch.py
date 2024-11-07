@@ -66,7 +66,7 @@ def generate_launch_description():
             robot_state_publisher_node,
             delay_controller_manager,
             #model_arg,
-            controller_manager,
+            #controller_manager,
  
         ]
     )
