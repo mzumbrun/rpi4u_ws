@@ -3,7 +3,7 @@
 <robot name="mybots" xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Load Simulated or Real Hardware Interfaces -->
-   <xacro:arg name="is_sim" default="true"/>
+   <xacro:arg name="is_sim" default="false"/>
    <xacro:arg name="use_ros2_control" default="true"/>
 
   <!-- Include physical aspects of the robot, includes LIDAR and IMU -->
