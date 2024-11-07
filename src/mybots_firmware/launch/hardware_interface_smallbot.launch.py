@@ -46,7 +46,7 @@ def generate_launch_description():
                     "urdf",
                     "smallbot.urdf.xacro",
                 ),
-                " is_sim:=False"
+                {"is_sim": "False"},
             ]
         ),
         value_type=str,
