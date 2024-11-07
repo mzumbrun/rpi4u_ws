@@ -84,7 +84,7 @@ def generate_launch_description():
         use_sim_time_arg,
         slam_config_arg,
         nav2_map_saver,
-        slam_toolbox,
-        #jazzy_slam_toolbox_launch,
+        #slam_toolbox,
+        jazzy_slam_toolbox_launch,
         nav2_lifecycle_manager,
     ])
