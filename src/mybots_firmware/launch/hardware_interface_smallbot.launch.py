@@ -32,10 +32,11 @@ def generate_launch_description():
         parameters=[params]
     )
     
-    #model_arg = DeclareLaunchArgument(name="model", default_value=os.path.join(
-    #                                  get_package_share_directory("mybots_description"), "urdf", "smallbot.urdf.xacro"),
-    #                                  description="Absolute path to robot urdf file"
-    #          )
+    model_arg = DeclareLaunchArgument(name="model", default_value=os.path.join(
+                                      get_package_share_directory("mybots_description"), "urdf", "smallbot.urdf.xacro"),
+                                      description="Absolute path to robot urdf file"
+    )
+    
     #robot_description = ParameterValue(Command(["xacro ", LaunchConfiguration("model")]),
     #                                   value_type=str)
     
@@ -64,9 +65,9 @@ def generate_launch_description():
             use_sim_time_arg,
             use_ros2_control_arg,
             robot_state_publisher_node,
-            delay_controller_manager,
-            #model_arg,
-            #controller_manager,
+           # delay_controller_manager,
+            model_arg,
+            controller_manager,
  
         ]
     )
