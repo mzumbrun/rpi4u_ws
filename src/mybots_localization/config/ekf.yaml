@@ -35,13 +35,13 @@ ekf_filter_node:
       #         estimation node from robot_localization! However, that instance should *not* fuse the global data.
       map_frame: map              # Defaults to "map" if unspecified
       odom_frame: odom            # Defaults to "odom" if unspecified
-      base_link_frame: base_footprint  # Defaults to "base_link" if unspecified ##11/6 - was base_footprint_ekf
+      base_link_frame: base_link  # Defaults to "base_link" if unspecified ##MLZ - was base_footprint_ekf MLZ was base_footprint
       world_frame: odom           # Defaults to the value of odom_frame if unspecified
 
       
 
       # IMU Configuration
-      # 11/6 was imu_ekf
+      # MLZ was imu_ekf
       imu0: imu/out
       # Each sensor reading updates some or all of the filter's state. These options give you greater control over which
       # values from each measurement are fed to the filter. For example, if you have an odometry message as input, but only
@@ -64,7 +64,7 @@ ekf_filter_node:
       # sensor_msgs/Imu). To add an input, simply append the next number in the sequence to its "base" name, e.g., odom0,
       # odom1, twist0, twist1, imu0, imu1, imu2, etc. The value should be the topic name. These parameters obviously have no
       # default values, and must be specified.
-      # 11/6 was mybots_controller/odom_noisy
+      # MLZ was mybots_controller/odom_noisy
       odom0: mybots_controller/odom
 
       # Each sensor reading updates some or all of the filter's state. These options give you greater control over which
