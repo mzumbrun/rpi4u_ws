@@ -1,4 +1,5 @@
 import os
+import xacro
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, TimerAction
 from launch_ros.actions import Node
@@ -21,10 +22,19 @@ def generate_launch_description():
     pkg_path = os.path.join(get_package_share_directory('mybots_description'))
     xacro_file = os.path.join(pkg_path,'urdf','smallbot.urdf.xacro')
     # robot_description_config = xacro.process_file(xacro_file).toxml()
-    robot_description_config = Command(['xacro ', xacro_file, ' use_ros2_control:=', use_ros2_control, ' is_sim:=', use_sim_time])
+   # robot_description_config = Command(['xacro ', xacro_file, ' use_ros2_control:=', use_ros2_control, ' is_sim:=', use_sim_time])
     
     # Create a robot_state_publisher node
-    params = {'robot_description': robot_description_config, 'use_sim_time': use_sim_time}
+   # params = {'robot_description': robot_description_config, 'use_sim_time': use_sim_time}
+    
+    doc = xacro.process_file(xacro_file, mappings={'is_sim' : 'false'})
+
+    robot_description = doc.toprettyxml(indent='  ')
+
+    params = {'robot_description': robot_description}
+    
+    
+    
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -37,20 +47,20 @@ def generate_launch_description():
                                       description="Absolute path to robot urdf file"
     )
     
-    robot_description = ParameterValue(
-        Command(
-            [
-                "xacro ",
-                os.path.join(
-                    get_package_share_directory("mybots_description"),
-                    "urdf",
-                    "smallbot.urdf.xacro",
-                ),
-                {"is_sim": "False"},
-            ]
-        ),
-        value_type=str,
-    )
+   # robot_description = ParameterValue(
+   #     Command(
+   #         [
+   #             "xacro ",
+   #             os.path.join(
+   #                 get_package_share_directory("mybots_description"),
+   #                 "urdf",
+   #                 "smallbot.urdf.xacro",
+   #             ),
+   #             " is_sim:=False",
+   #         ]
+   #     ),
+   #     value_type=str,
+   # )
     
     #delay_controller_manager = TimerAction(period=3.0, actions=[controller_manager])
     
