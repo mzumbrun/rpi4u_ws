@@ -68,7 +68,7 @@ Visualization Manager:
           Value: true
         imu_link:
           Value: true
-        laser_link:
+        laser_frame:
           Value: true
         map:
           Value: true
@@ -94,7 +94,7 @@ Visualization Manager:
                   {}
                 imu_link:
                   {}
-                laser_link:
+                laser_frame:
                   {}
                 wheel_left_link:
                   {}
@@ -193,7 +193,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        laser_link:
+        laser_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
