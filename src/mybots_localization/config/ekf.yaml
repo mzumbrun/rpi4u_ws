@@ -41,8 +41,8 @@ ekf_filter_node:
       
 
       # IMU Configuration
-      # MLZ was imu_ekf
-      imu0: imu/out
+      # MLZ was imu/out for imu integration according to class. initially imu_ekf
+      imu0: imu_ekf
       # Each sensor reading updates some or all of the filter's state. These options give you greater control over which
       # values from each measurement are fed to the filter. For example, if you have an odometry message as input, but only
       # want to use its Z position value, then set the entire vector to false, except for the third entry. The order of the
@@ -64,8 +64,8 @@ ekf_filter_node:
       # sensor_msgs/Imu). To add an input, simply append the next number in the sequence to its "base" name, e.g., odom0,
       # odom1, twist0, twist1, imu0, imu1, imu2, etc. The value should be the topic name. These parameters obviously have no
       # default values, and must be specified.
-      # MLZ was mybots_controller/odom_noisy
-      odom0: mybots_controller/odom
+      # MLZ mybots_controller/odom for integration of imu according to class, initially mybots_controller/odom_noisy
+      odom0: mybots_controller/odom_noisy
 
       # Each sensor reading updates some or all of the filter's state. These options give you greater control over which
       # values from each measurement are fed to the filter. For example, if you have an odometry message as input, but only
