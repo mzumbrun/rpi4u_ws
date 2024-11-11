@@ -30,13 +30,18 @@ def generate_launch_description():
     laser_driver = Node(
             package="rplidar_ros",
             executable="rplidar_composition",
-            name="rplidar_composition",
-            parameters=[os.path.join(
-                get_package_share_directory("mybots_bringup"),
-                "config",
-                "rplidar_a1.yaml"
-            )],
-            output="screen"
+           # name="rplidar_composition",
+            output="screen",
+            parameters=[{
+                'channel_type': 'serial',
+                'serial_port': '/dev/ttyUSB0',
+                'serial_baudrate': 115200,
+                'frame_id': 'laser_frame',
+                'angle_compensate': True,
+                'inverted': False,
+                'scan_mode': 'Standard'
+            }],         
+
     )
     
     controller = IncludeLaunchDescription(

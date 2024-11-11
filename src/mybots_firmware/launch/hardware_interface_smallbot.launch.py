@@ -21,19 +21,11 @@ def generate_launch_description():
     # Process the URDF file
     pkg_path = os.path.join(get_package_share_directory('mybots_description'))
     xacro_file = os.path.join(pkg_path,'urdf','smallbot.urdf.xacro')
-    # robot_description_config = xacro.process_file(xacro_file).toxml()
-   # robot_description_config = Command(['xacro ', xacro_file, ' use_ros2_control:=', use_ros2_control, ' is_sim:=', use_sim_time])
+    doc = xacro.process_file(xacro_file, mappings={'is_sim' : 'false', 'use_ros2_control' : 'true'})
+    robot_description = doc.toprettyxml(indent='  ')
     
     # Create a robot_state_publisher node
-   # params = {'robot_description': robot_description_config, 'use_sim_time': use_sim_time}
-    
-    doc = xacro.process_file(xacro_file, mappings={'is_sim' : 'false'})
-
-    robot_description = doc.toprettyxml(indent='  ')
-
-    params = {'robot_description': robot_description}
-    
-    
+    params = {'robot_description': robot_description, 'use_sim_time': use_sim_time}
     
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
@@ -42,31 +34,6 @@ def generate_launch_description():
         parameters=[params]
     )
     
-    model_arg = DeclareLaunchArgument(name="model", default_value=os.path.join(
-                                      get_package_share_directory("mybots_description"), "urdf", "smallbot.urdf.xacro"),
-                                      description="Absolute path to robot urdf file"
-    )
-    
-   # robot_description = ParameterValue(
-   #     Command(
-   #         [
-   #             "xacro ",
-   #             os.path.join(
-   #                 get_package_share_directory("mybots_description"),
-   #                 "urdf",
-   #                 "smallbot.urdf.xacro",
-   #             ),
-   #             " is_sim:=False",
-   #         ]
-   #     ),
-   #     value_type=str,
-   # )
-    
-    #delay_controller_manager = TimerAction(period=3.0, actions=[controller_manager])
-    
-    
-    #robot_description = Command(['ros2 param get --hide-type /robot_state_publisher robot_description'])
-
     controller_manager = Node(
         package="controller_manager",
         executable="ros2_control_node",
@@ -88,7 +55,7 @@ def generate_launch_description():
             use_ros2_control_arg,
             robot_state_publisher_node,
            # delay_controller_manager,
-            model_arg,
+           #model_arg,
             controller_manager,
  
         ]

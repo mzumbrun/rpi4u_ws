@@ -60,7 +60,7 @@ def generate_launch_description():
         os.path.join(
             get_package_share_directory("slam_toolbox"),
             "launch",
-            "online_async_launch.py"
+            "online_sync_launch.py"
         ),
         launch_arguments={
             "slam_params_file": os.path.join(get_package_share_directory('mybots_mapping'), "config", "slam_toolbox.yaml"),

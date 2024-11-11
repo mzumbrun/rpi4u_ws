@@ -6,4 +6,4 @@ rplidar_node:
     frame_id: laser_frame
     inverted: false
     angle_compensate: true
-    scan_mode: Sensitivity
+    scan_mode: Boost

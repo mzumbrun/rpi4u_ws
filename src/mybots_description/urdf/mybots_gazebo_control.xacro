@@ -3,12 +3,13 @@
 <robot name="mybots" xmlns:xacro="http://ros.org/wiki/xacro">
 
     <!-- ROS 2 Control -->
+  <xacro:if value="$(arg is_sim)">
     <gazebo>
       <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
         <parameters>$(find mybots_controller)/config/mybots_controllers.yaml</parameters>
       </plugin>
-  
-  </gazebo>
+    </gazebo>
+  </xacro:if>
 
 
   <!-- Wheels -->
