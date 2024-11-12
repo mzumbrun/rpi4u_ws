@@ -21,6 +21,10 @@ def generate_launch_description():
             "launch",
             "hardware_interface_smallbot.launch.py"
         ),
+        launch_arguments={
+            "use_sim_time": "False",
+            "use_ros2_control": "True"
+        }.items(),
     )
 
     laser_driver = Node(
@@ -93,7 +97,7 @@ def generate_launch_description():
      #   laser_driver,
         controller,
      #   joystick,
-     #   imu_driver_node,
+        imu_driver_node,
         safety_stop,
      #   localization,
      #   slam

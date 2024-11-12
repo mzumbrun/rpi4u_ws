@@ -12,6 +12,7 @@ find_package(nav_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(twist_mux REQUIRED)
 
 include_directories(include)
 include_directories(${EIGEN3_INCLUDE_DIR})
