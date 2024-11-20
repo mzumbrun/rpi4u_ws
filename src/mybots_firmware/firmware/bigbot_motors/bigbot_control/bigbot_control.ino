@@ -73,20 +73,21 @@ void setup() {
     is_right = true;
     max_pos_speed = 2000;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
     max_neg_speed = 1000;
-    Kp = 10.;
-    Ki = .8;
-    Kd = 0.1;
+    Kp = 1.;  // was 10.
+    Ki = 0.0;   // was 0.8
+    Kd = 0.0;  // was 0.1
     Motor.SetTunings(Kp, Ki, Kd);
   } else {
     wheel_side[0] = 'l';
     is_right = false;
     max_pos_speed = 2000;
     max_neg_speed = 1000;
-    Kp = 10.;
-    Ki = .8;
-    Kd = 0.1;
+    Kp = 1.;
+    Ki = 0.0;
+    Kd = 0.0;
     Motor.SetTunings(Kp, Ki, Kd);
   }
+  Motor.SetMode(AUTOMATIC);
   Serial.begin(115200);
   bigbot_servo.writeMicroseconds(1500);  // start with motors at zero speed
 }
@@ -142,11 +143,11 @@ void loop() {
   // Encoder
   unsigned long current_millis = millis();
   real_interval = current_millis - last_millis;
-  if (real_interval >= interval) {
+  if (current_millis - last_millis >= interval) {
     last_millis = current_millis;
   
-    wheel_meas_vel = 1.*(float(encoder_count_)/float(real_interval)) * (60.0 / 35.) * 0.10472;  //  rads/sec
-
+    wheel_meas_vel = (10*encoder_count_ * (60.0 / 35.)) * 0.10472;  //  rads/sec
+    encoder_count_=0;
     Motor.Compute();  // output is wheel_cmd 0-255
 
     if (wheel_cmd_vel == 0.0) {  // if setpoint is 0, then make sure cmd to wheels is 0
@@ -159,7 +160,6 @@ void loop() {
       encoder_read = "l" + wheel_sign + String(wheel_meas_vel, 2) + ",";
 
     }
-    encoder_count_ = 0;
     Serial.println(encoder_read);
 
     //*****************************************************
@@ -174,8 +174,7 @@ void loop() {
   }
 }
 
-
-// New pulse from Left Wheel Encoder
+// New pulse from  Encoder
 void EncoderCallback() {
   encoder_count_++;
 }

@@ -43,7 +43,7 @@ def generate_launch_description():
             os.path.join(
                 get_package_share_directory("mybots_controller"),
                 "config",
-                "mybots_controllers.yaml",
+                "bigbot_controllers.yaml",
             ),
         ],
     )
