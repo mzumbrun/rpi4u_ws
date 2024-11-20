@@ -1,5 +1,6 @@
 // POR code for both left and right arduinos for bigbot
 // to do - remove dc_high pin, use input_pullup. not urgent
+// 11/20/2024 - removed softserial, removed string to end with #
 // 09/16/2024 - enabled PID and encoder
 // 09/05/2024 - changed serial read from ROS to read entire string
 // 08/21/2024 - initial code
@@ -7,20 +8,16 @@
 
 #include <PID_v1.h>
 #include <Servo.h>
-#include <SoftwareSerial.h>
 
 #define motor_ppm_pin 9    // ppm control signal to esc
-#define motor_select 6     // connect to dc_high for right motor, dc_lowfor left motor
+#define motor_select 6     // connect to dc_high for right motor, dc_low for left motor
 #define dc_high 5          // driven high - right
 #define dc_low 4           // driven low - left
 #define encoder_counter 2  // Interrupt
 #define H2 3
 #define H3 7
-#define rxPin 10
-#define txPin 11
 
 Servo bigbot_servo;
-SoftwareSerial hardwire_port(rxPin, txPin);
 
 // Encoders
 unsigned long encoder_count_ = 0;
@@ -31,12 +28,15 @@ char len = "1";
 
 // Interpret Serial Messages
 String wheel_sign = "p";  // 'p' = positive, 'n' = negative
+bool is_wheel_cmd = false;
 bool is_wheel_forward = true;
-String value = "00.00";
-String ROS_input = "rp00.00,lp00.00,";
+char value[] = "00.00";
+uint8_t value_idx = 0;
+bool is_cmd_complete = false;
 String encoder_read = "rp00.00,";
-char wheel_side[] = "right";
+char wheel_side[] ="right";
 bool is_right = true;
+char chr= "x";
 
 // speed control
 int max_pos_speed = 1500;  //  value from CALIBRATION to max rad/s from ROS
@@ -64,8 +64,6 @@ void setup() {
   pinMode(encoder_counter, INPUT_PULLUP);
   pinMode(H2, INPUT_PULLUP);
   pinMode(H3, INPUT_PULLUP);
-  pinMode(rxPin, INPUT);
-  pinMode(txPin, OUTPUT);
   attachInterrupt(digitalPinToInterrupt(encoder_counter), EncoderCallback, FALLING);
   digitalWrite(dc_low, LOW);
   digitalWrite(dc_high, HIGH);
@@ -90,39 +88,54 @@ void setup() {
     Motor.SetTunings(Kp, Ki, Kd);
   }
   Serial.begin(115200);
-  hardwire_port.begin(115200);
-  bigbot_servo.writeMicroseconds(1500);  // start with motors off
+  bigbot_servo.writeMicroseconds(1500);  // start with motors at zero speed
 }
 
 void loop() {
 
   // format from ros: "rdxx.xx,ldxx.xx,"
   if (Serial.available() > 0) {
-    ROS_input = Serial.readStringUntil('X');  // \0 is null character  \n is new line
-    if (wheel_side[0] == 'r') {               // if true, then get its direction and speed
-      is_right = true;
-      wheel_sign = ROS_input[1];
-      value[0] = ROS_input[2];
-      value[1] = ROS_input[3];
-      value[2] = ROS_input[4];
-      value[3] = ROS_input[5];
-      value[4] = ROS_input[6];
-      value[5] = '\0';
+    chr = Serial.read();
+ // \0 is null character  \n is new line
+    if (chr == wheel_side[0]) {               
+      is_wheel_cmd = true;
+      value_idx = 0;
+      is_cmd_complete = false;
     }
-    if (wheel_side[0] == 'l') {  // if true, then get its direction and speed
-      wheel_sign = ROS_input[9];
-      value[0] = ROS_input[10];
-      value[1] = ROS_input[11];
-      value[2] = ROS_input[12];
-      value[3] = ROS_input[13];
-      value[4] = ROS_input[14];
-      value[5] = '\0';
-    }
-    wheel_cmd_vel = value.toFloat();
-    if (wheel_sign == "p") {
+    else if (chr == 'p') {
+     if (is_wheel_cmd) {
+      wheel_sign ="p";
       is_wheel_forward = true;
-    } else {
+     }
+    }
+    else if (chr == 'n') {
+     if (is_wheel_cmd) {
+      wheel_sign ="n";
       is_wheel_forward = false;
+     }
+    }
+     // Separator
+    else if (chr == ',') {
+      if (is_wheel_cmd) {
+        wheel_cmd_vel = atof(value);
+        is_cmd_complete = true;
+      }
+      // Reset for next command
+      value_idx = 0;
+      value[0] = '0';
+      value[1] = '0';
+      value[2] = '.';
+      value[3] = '0';
+      value[4] = '0';
+      value[5] = '\0';
+      is_wheel_cmd = false;
+    }
+    // Command Value
+    else {
+      if (value_idx < 5) {
+        value[value_idx] = chr;
+        value_idx++;
+      }
     }
   }
 
@@ -139,23 +152,12 @@ void loop() {
     if (wheel_cmd_vel == 0.0) {  // if setpoint is 0, then make sure cmd to wheels is 0
       wheel_cmd = 0.0;
     }
-    // *** UNTIL ENCODER CAN WORK, SEND BACK TO ROS SAME AS INPUT. ULTIMATE CHANGE TO wheel_meas_vel
-    if (is_right) {
+    if ('r'== wheel_side[0]) {
       encoder_read = "r" + wheel_sign + String(wheel_meas_vel, 2) + ",";
-      hardwire_port.write('r');
-    //  encoder_count_ = 12899;
-      String enc = String(encoder_count_);
-      len = (char)enc.length();
-      hardwire_port.write(len);
-      hardwire_port.write(enc.c_str());
-    } else {
+
+    } else if ('l' == wheel_side[0]) {
       encoder_read = "l" + wheel_sign + String(wheel_meas_vel, 2) + ",";
-      hardwire_port.write('l');
-     // encoder_count_ = 34045;
-      String enc = String(encoder_count_);
-      len = (char)enc.length();
-      hardwire_port.write(len);
-      hardwire_port.write(enc.c_str());
+
     }
     encoder_count_ = 0;
     Serial.println(encoder_read);
