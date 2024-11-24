@@ -1,5 +1,6 @@
 // POR code for both left and right arduinos for bigbot
 // to do - remove dc_high pin, use input_pullup. not urgent
+// 11/24/2024 - removing PID control from bigbot_control
 // 11/21/2024 - on going pid iterations, speed control
 // 11/20/2024 - removed softserial, removed string to end with #
 // 09/16/2024 - enabled PID and encoder
@@ -41,8 +42,9 @@ bool is_right = true;
 char chr= "x";
 
 // speed control
-int max_pos_speed = 1500;  //  value from CALIBRATION to max rad/s from ROS
-int max_neg_speed = 1500;
+double max_pos_speed = 1500.;  //  value from CALIBRATION to max rad/s from ROS
+double max_neg_speed = 1500.;
+double speed =1500.;
 double max_rads_per_sec = 25.;     // 22 corresponds to that in ROS for 0.7 m/s
 double wheel_cmd_vel = 0.0;   // setpoint from ROS_CONTROL rad/s
 double wheel_meas_vel = 0.0;  // Measured from motor encoders, rad/s
@@ -73,8 +75,8 @@ void setup() {
   if (digitalRead(motor_select) == HIGH) {
     wheel_side[0] = 'r';
     is_right = true;
-    max_pos_speed = 1800;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
-    max_neg_speed = 1200;
+    max_pos_speed = 2200;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
+    max_neg_speed = 1000;
     Kp = 30.;  // was 10.
     Ki = 0.6;   // was 0.8
     Kd = 5.;  // was 0.1
@@ -82,8 +84,8 @@ void setup() {
   } else {
     wheel_side[0] = 'l';
     is_right = false;
-    max_pos_speed = 1800;
-    max_neg_speed = 1200;
+    max_pos_speed = 2200;
+    max_neg_speed = 1000;
     Kp = 30.;
     Ki = 0.6;
     Kd = 5.;
@@ -120,7 +122,7 @@ void loop() {
      // Separator
     else if (chr == ',') {
       if (is_wheel_cmd) {
-        wheel_cmd_vel = atof(value);
+        wheel_cmd_vel = atof(value);  // rad/s from ROS to command the wheels
         is_cmd_complete = true;
       }
       // Reset for next command
@@ -154,18 +156,22 @@ void loop() {
   if (real_interval >= interval) {
     last_millis = current_millis;
   
-    wheel_meas_vel = (1000./real_interval)* encoder_count_ * (60.0 / 35.) * 0.10472;  //  rads/sec
+    wheel_meas_vel = (1000/real_interval)* encoder_count_ * (60.0 / 35.) * 0.10472;  //  rads/sec
     encoder_count_=0;
-    Motor.Compute();  // output is wheel_cmd 0-255
+    // Motor.Compute();  // output is wheel_cmd 0-255
+
 
     if (wheel_cmd_vel == 0.0) {  // if setpoint is 0, then make sure cmd to wheels is 0
       wheel_cmd = 0.0;
     }
+
+
 // following commands not necessary if using PID to zero in on matched speed with ROS
-   wheel_cmd = constrain(wheel_cmd, 0, 255);
+ //  wheel_cmd = constrain(wheel_cmd, 0, 255);
 // above not necessary if using PID
 
-
+// send back to ROS what was sent to Arduino -- EFFECTIVELY not using encoder
+wheel_meas_vel = wheel_cmd_vel;
 
     if ('r'== wheel_side[0]) {
       encoder_read = "r" + wheel_sign + String(wheel_meas_vel, 2) + ",";
@@ -176,16 +182,20 @@ void loop() {
     }
     Serial.println(encoder_read);
 
-// wheel_cmd is between 0-255 and is output from PID
-// if using wheel_cmd then using PID
-// if using wheel_cmd_vel then sending command from ROS directly to motor
+// wheel_cmd is between 0-255 if output from PID
+// wheel_cmd = wheel_cmd: // if using wheel_cmd then using PID
+wheel_cmd = constrain(wheel_cmd_vel, 0, max_rads_per_sec); // if using wheel_cmd_vel then sending command from ROS directly to motor
+
+
     //*****************************************************
-    if (is_wheel_forward) {
-      bigbot_servo.writeMicroseconds(map((int)wheel_cmd, 0, max_rads_per_sec, 1500, max_pos_speed));
+    if (wheel_sign == "p") {
+      speed = 1500. + (wheel_cmd / max_rads_per_sec)* (max_pos_speed -1500.);
+      bigbot_servo.writeMicroseconds(int(speed));
       // wheel_sign = "p";
     }
-    if (!is_wheel_forward) {
-      bigbot_servo.writeMicroseconds(map((int)wheel_cmd, 0, max_rads_per_sec, 1500, max_neg_speed));
+    if (wheel_sign == "n") {
+      speed = 1500. + (wheel_cmd / max_rads_per_sec)*(max_neg_speed-1500.);
+      bigbot_servo.writeMicroseconds(int(speed));
       // wheel_sign = "n";
     }
   }
