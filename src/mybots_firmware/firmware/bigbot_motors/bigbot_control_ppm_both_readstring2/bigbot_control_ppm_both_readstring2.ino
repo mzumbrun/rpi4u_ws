@@ -61,8 +61,8 @@ void setup() {
   if (digitalRead(motor_select) == HIGH) {
     wheel_side[0] = 'r';
     is_right = true;
-    max_pos_speed = 2450;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
-    max_neg_speed = 1000;
+    max_pos_speed = 1700;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
+    max_neg_speed = 1300;
     Kp = 15000.0;
     Ki = 800.0;
     Kd = 0.1;
@@ -70,8 +70,8 @@ void setup() {
   } else {
     wheel_side[0] = 'l';
     is_right = false;
-    max_pos_speed = 2450;
-    max_neg_speed = 1000;
+    max_pos_speed = 1700;
+    max_neg_speed = 1300;
     Kp = 15000.0;
     Ki = 800.0;
     Kd = 0.1;
@@ -122,12 +122,16 @@ void loop() {
    // Serial.println("rad/s   " + String(wheel_meas_vel));
    // Serial.println(" ");
     encoder_count_ = 0;
-    Motor.Compute();  // output is wheel_cmd in rad/s
+    // Motor.Compute();  // output is wheel_cmd in rad/s
 
     if (wheel_cmd_vel == 0.0) {  // if setpoint is 0, then make sure cmd to wheels is 0
       wheel_cmd = 0.0;
     }
 // *** UNTIL ENCODER CAN WORK, SEND BACK TO ROS SAME AS INPUT. ULTIMATE CHANGE TO wheel_meas_vel
+   wheel_meas_vel=wheel_cmd_vel; // forcing measured to be same as setpoint
+   wheel_cmd = wheel_cmd_vel; // passing input to motors and back to ROS
+// ***
+
     if (is_right) {
       encoder_read = "r" + wheel_sign + String(wheel_meas_vel, 2) + ",";
     } else {
