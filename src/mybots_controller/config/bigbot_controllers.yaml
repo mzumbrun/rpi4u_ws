@@ -23,8 +23,8 @@ mybots_controller:
     pose_covariance_diagonal : [0.001, 0.001, 1.0e-3, 1.0e-3, 1.0e-3, 0.01]
     twist_covariance_diagonal: [0.001, 0.001, 1.0e-3, 1.0e-3, 1.0e-3, 0.01]
 
-    wheel_separation : 0.282
-    wheel_radius : 0.033
+    wheel_separation : 0.445 # .445 = 17.5 inches
+    wheel_radius : 0.063 # .063 = 2.5 inch radius
 
     wheel_separation_multiplier: 1.0
     left_wheel_radius_multiplier: 1.0
@@ -60,8 +60,8 @@ mybots_controller:
     angular:
       z:
         has_velocity_limits    : true
-        max_velocity           : 1.0  # rad/s was 8.5
-        min_velocity           : -1.0  # rad/s was -8.5
+        max_velocity           : 5.0  # rad/s was 8.5
+        min_velocity           : -5.0  # rad/s was -8.5
         has_acceleration_limits: true
         max_acceleration       : 5.0  # rad/s^2
         min_acceleration       : -5.0   # rad/s^2
