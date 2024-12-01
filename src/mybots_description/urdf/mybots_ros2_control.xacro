@@ -15,7 +15,7 @@
             <hardware>
                 <plugin>mybots_firmware/mybotsInterface</plugin>
                 <param name="port">/dev/ttyACM0</param>
-                <param name="port2">/dev/ttyACM1</param>
+                <param name="port2">/dev/ttyUSB0</param>
             </hardware>
         </xacro:unless>
         
