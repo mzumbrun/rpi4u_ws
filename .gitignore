@@ -3,3 +3,4 @@ install/
 log/
 .vscode/
 *.swp
+src/mybots_firmware/firmware/tools/PID_tune2/arduino_secrets.h
