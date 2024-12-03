@@ -1,5 +1,7 @@
 // for tuning PID constants
 // 12/2/2024 - initial
+// 12/3/2024 - placed mqtt in callback
+// works as stand alone. now can be added to robot firmware
 
 
 #include <WiFiNINA.h>
@@ -14,18 +16,16 @@ char password[] = SECRET_PASS;
 const char mqtt_server[] = "test.mosquitto.org";
 const int mqtt_port = 1883;
 String PIDmessage;
+String messageTopic;
 
 // PID variables
 double Kp = 1.;
 double Ki = 2.;
 double Kd = 3.;
-
-
+int encoder_count_ = 21;
 
 WiFiClient nanoClient;
 MqttClient mqttClient(nanoClient);
-
-
 
 void setup() {
 
@@ -45,64 +45,63 @@ void setup() {
       ;
   }
   Serial.println("Connected to MQTT");
-  // subscribe to a topics
+
+  mqttClient.onMessage(mqttCallback);
   mqttClient.subscribe("PID/Kp");
   mqttClient.subscribe("PID/Ki");
   mqttClient.subscribe("PID/Kd");
+  mqttClient.subscribe("PID/encoder");
+
+  //writePIDconstants();
 }
 
-
-
 void loop() {
-
-  getPIDconstants();
+  mqttClient.poll();
   Serial.print("Kp= ");
   Serial.println(Kp);
   Serial.print("Ki= ");
   Serial.println(Ki);
   Serial.print("Kd= ");
   Serial.println(Kd);
+  delay(1000);
+  writeEncoderCount();
 }
 
-void getPIDconstants() {
-  mqttClient.poll();
-
-  String messageTopic = mqttClient.messageTopic();
-
+void mqttCallback(int length) {
+  char message[20];
+  double k;
+  messageTopic = mqttClient.messageTopic();
   if (messageTopic == "PID/Kp") {
-    Serial.println(messageTopic);
-    while (mqttClient.available()) {
-      char inChar = ((char)mqttClient.read());
-      PIDmessage += inChar;
-    }
-    Kp = PIDmessage.toDouble();
-    PIDmessage = "";
+    Kp = convertMessage();
   } else if (messageTopic == "PID/Ki") {
-    Serial.println(messageTopic);
-    while (mqttClient.available()) {
-      char inChar = ((char)mqttClient.read());
-      PIDmessage += inChar;
-    }
-    Ki = PIDmessage.toDouble();
-    PIDmessage = "";
+    Ki = convertMessage();
   } else if (messageTopic == "PID/Kd") {
-    Serial.println(messageTopic);
-    while (mqttClient.available()) {
-      char inChar = ((char)mqttClient.read());
-      PIDmessage += inChar;
-    }
-    Kd = PIDmessage.toDouble();
-    PIDmessage = "";
-    // }
+    Kd = convertMessage();
   }
+}
 
+double convertMessage() {
+  Serial.println(messageTopic);
+  while (mqttClient.available()) {
+    char inChar = ((char)mqttClient.read());
+    PIDmessage += inChar;
+  }
+  double k = PIDmessage.toDouble();
+  PIDmessage = "";
+  return k;
+}
 
-  delay(1000);
+void writeEncoderCount() {
+  char message[20];
+
+  dtostrf(encoder_count_, 6, 2, message);
+  mqttClient.beginMessage("PID/encoder");
+  mqttClient.print(message);
+  mqttClient.endMessage();
 }
 
 void writePIDconstants() {
   // Publish data to MQTT topic
-
   char message[20];
 
   dtostrf(Kp, 6, 2, message);
@@ -119,15 +118,6 @@ void writePIDconstants() {
   mqttClient.beginMessage("PID/Kd");
   mqttClient.print(message);
   mqttClient.endMessage();
-}
-
-
-
-
-
-void mqttCallback(char* topic, byte* payload, unsigned int length) {
-
-  // Optional callback function if you need to handle incoming messages
 }
 
 char* dtostrf(double val, signed char width, unsigned char prec, char* sout) {
