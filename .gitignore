@@ -4,3 +4,4 @@ log/
 .vscode/
 *.swp
 src/mybots_firmware/firmware/tools/PID_tune2/arduino_secrets.h
+src/mybots_firmware/firmware/smallbot_motors/smallbot_adc_mqtt/arduino_secrets.h
