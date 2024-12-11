@@ -87,6 +87,18 @@ def generate_launch_description():
             "/controller_manager",
         ],
     )
+    
+    arm_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["arm_controller", "--controller-manager", "/controller_manager"],
+    )
+
+    gripper_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["gripper_controller", "--controller-manager", "/controller_manager"],
+    )
 
     wheel_controller_spawner = Node(
         package="controller_manager",
@@ -142,6 +154,8 @@ def generate_launch_description():
             wheel_radius_error_arg,
             wheel_separation_error_arg,
             joint_state_broadcaster_spawner,
+            arm_controller_spawner,
+            gripper_controller_spawner,
             wheel_controller_spawner,
             simple_controller,
             noisy_controller_launch,

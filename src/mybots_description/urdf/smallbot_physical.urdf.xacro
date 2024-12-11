@@ -9,6 +9,10 @@
     <color rgba="0 0 0 1"/>
   </material>
 
+  <material name="white">
+  <color rgba="1 1 1 1"/>
+  </material>
+
   <material name="silver">
     <color rgba="0.79 0.82 0.93 1"/>
   </material>

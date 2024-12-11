@@ -6,8 +6,9 @@
    <xacro:arg name="is_sim" default="true"/>
    <xacro:arg name="use_ros2_control" default="true"/>
 
-  <!-- Include physical aspects of the robot, includes LIDAR and IMU -->
+  <!-- Include physical aspects of the robot, includes add-ons -->
   <xacro:include filename="$(find mybots_description)/urdf/smallbot_physical.urdf.xacro" />
+  <xacro:include filename="$(find mybots_description)/urdf/little_arm.urdf.xacro" />
 
 
   <!-- Include ros2 control Parameters for both SIM and REAL robots-->

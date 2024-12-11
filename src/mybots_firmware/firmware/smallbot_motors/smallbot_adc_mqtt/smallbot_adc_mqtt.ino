@@ -1,4 +1,5 @@
 /*
+  12/9/2024 - removed Serial.print on some lines so myController works
   12/3/2024 - removed BLE, added wifi and mqtt
   12/1/2024 - adding BLE to read encoder value
 */
@@ -77,17 +78,19 @@ void setup() {
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.println("Connecting to WiFi..");
+   // Serial.println("Connecting to WiFi.."); // comment when using ROS
   }
-  Serial.println("Connected to WiFi");
+ // Serial.println("Connected to WiFi"); // comment when using ROS
+
+ //mqttClient.connect(mqtt_server, mqtt_port);
 
   if (!mqttClient.connect(mqtt_server, mqtt_port)) {
-    Serial.print("MQTT connection failed! Error code = ");
-    Serial.println(mqttClient.connectError());
+    Serial.print("MQTT connection failed! Error code = "); // comment when using ROS
+    Serial.println(mqttClient.connectError()); // comment when using ROS
     while (1)
       ;
   }
-  Serial.println("Connected to MQTT");
+  // Serial.println("Connected to MQTT"); // comment when using ROS
   mqttClient.onMessage(mqttCallback);
   mqttClient.subscribe("PID/encoder");
   mqttClient.subscribe("PID/clicks");
@@ -125,8 +128,8 @@ void setup() {
 
 void loop() {
   mqttClient.poll();
-  // Serial.print("Kp= ");
-  // Serial.println(Kp);
+ // Serial.print("Kp= ");
+ // Serial.println(Kp);
   // Serial.print("Ki= ");
   // Serial.println(Ki);
   // Serial.print("Kd= ");
@@ -247,6 +250,7 @@ void mqttCallback(int length) {
     clicks_per_rev = convertMessage();
   }
   Motor.SetTunings(Kp, Ki, Kd);
+ // delay(100);
 }
 
 double convertMessage() {
@@ -273,12 +277,12 @@ void writeEncoderCount() {
   mqttClient.print(message);
   mqttClient.endMessage();
 
-  dtostrf(wheel_cmd, 6, 2, message);
+  dtostrf(wheel_cmd_vel, 6, 2, message);  // rad/s command from ROS
   mqttClient.beginMessage("PID/cmd_vel");
   mqttClient.print(message);
   mqttClient.endMessage();
 
-  dtostrf(wheel_meas_vel, 6, 2, message);
+  dtostrf(wheel_meas_vel, 6, 2, message); // rad/s measured from encoder values
   mqttClient.beginMessage("PID/actual_vel");
   mqttClient.print(message);
   mqttClient.endMessage();
