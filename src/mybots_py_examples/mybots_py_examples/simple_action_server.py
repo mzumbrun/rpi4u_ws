@@ -42,6 +42,8 @@ def main(args=None):
     rclpy.init(args=args)
     simple_action_server = SimpleActionServer()
     rclpy.spin(simple_action_server)
+    simple_action_server.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == "__main__":

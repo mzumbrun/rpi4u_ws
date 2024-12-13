@@ -11,6 +11,7 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/Fibonacci.action"
+  "action/MybotsTask.action"
   "srv/AddTwoInts.srv"
   "srv/GetTransform.srv"
   "srv/EulerToQuaternion.srv"

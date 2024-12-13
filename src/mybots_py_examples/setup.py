@@ -1,3 +1,6 @@
+import os
+from glob import glob
+
 from setuptools import setup
 
 package_name = 'mybots_py_examples'
@@ -10,6 +13,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch','*launch.[pxy][yma]*')))
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -32,6 +36,7 @@ setup(
             'simple_lifecycle_node = mybots_py_examples.simple_lifecycle_node:main',
             'simple_qos_publisher = mybots_py_examples.simple_qos_publisher:main',
             'simple_qos_subscriber = mybots_py_examples.simple_qos_subscriber:main',
+            'simple_moveit_interface = mybots_py_examples.simple_moveit_interface:main',
         ],
     },
 )

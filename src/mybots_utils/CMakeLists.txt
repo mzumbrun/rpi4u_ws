@@ -29,6 +29,7 @@ install(TARGETS
 
 install(PROGRAMS
   ${PROJECT_NAME}/safety_stop.py
+  ${PROJECT_NAME}/joy_test.py
   ${PROJECT_NAME}/angle_conversion.py
   DESTINATION lib/${PROJECT_NAME}
 )

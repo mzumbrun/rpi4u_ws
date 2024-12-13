@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="0.001"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="little_arm">
     
     <!-- Useful XACRO Variables (Properties) -->
@@ -11,9 +11,9 @@
         <inertial>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <mass value="${mass}" />
-            <inertia ixx="1.0" ixy="0.0" ixz="0.0"
-                     iyy="1.0" iyz="0.0"
-                     izz="1.0" />
+            <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+                     iyy="0.001" iyz="0.0"
+                     izz="0.001" />
         </inertial>
     </xacro:macro>
 
@@ -21,7 +21,7 @@
     <link name="world"/> -->
 
     <link name="basement">
-        <xacro:default_inertial mass="1.0"/>
+        <xacro:default_inertial mass="0.028"/>
         <visual>
             <origin rpy="0 0 0" xyz="-0.05 -0.05 0"/>
             <geometry>
@@ -38,7 +38,7 @@
     </link>
 
     <link name="base_plate">
-        <xacro:default_inertial mass="0.1"/>
+        <xacro:default_inertial mass="0.023"/>
         <visual>
             <origin rpy="0 0 0" xyz="-0.039 -0.039 -0.056"/>
             <geometry>
@@ -54,7 +54,7 @@
     </link>
 
     <link name="forward_drive_arm">
-        <xacro:default_inertial mass="0.1"/>
+        <xacro:default_inertial mass="0.009"/>
         <visual>
             <origin rpy=" 0 -${PI / 2} ${PI / 2}" xyz="0.019 0.006 -0.008"/>
             <geometry>
@@ -70,7 +70,7 @@
     </link>
 
     <link name="horizontal_arm">
-        <xacro:default_inertial mass="0.1"/>
+        <xacro:default_inertial mass="0.006"/>
         <visual>
             <origin rpy="${PI / 2} 0 ${PI / 2}" xyz="-0.003 -0.04 -0.006"/>
             <geometry>
@@ -86,7 +86,7 @@
     </link>
 
     <link name="claw_support">
-        <xacro:default_inertial mass="0.05"/>
+        <xacro:default_inertial mass="0.004"/>
         <visual>
             <origin rpy="0 0 ${PI / 2}" xyz="0 -0.005 -0.015"/>
             <geometry>
@@ -102,7 +102,7 @@
     </link>
 
     <link name="gripper_right">
-        <xacro:default_inertial mass="0.01"/>
+        <xacro:default_inertial mass="0.001"/>
         <visual>
             <origin rpy="0 0 -${PI / 2}" xyz="-0.01 0.050 -0.01"/>
             <geometry>
@@ -118,7 +118,7 @@
     </link>
 
     <link name="gripper_left">
-        <xacro:default_inertial mass="0.01"/>
+        <xacro:default_inertial mass="0.001"/>
         <visual>
             <origin rpy="0 0 -${PI / 2}" xyz="-0.004 0.050 -0.01"/>
             <geometry>
