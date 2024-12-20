@@ -43,7 +43,7 @@ def generate_launch_description():
         os.path.join(
             get_package_share_directory("mybots_controller"),
             "launch",
-            "controller.launch.py"
+            "controller_bigbot.launch.py"
         ),
         launch_arguments={
             "use_simple_controller": "False",

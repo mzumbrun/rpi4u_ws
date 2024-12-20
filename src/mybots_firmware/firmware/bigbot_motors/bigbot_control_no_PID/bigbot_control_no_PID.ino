@@ -1,5 +1,6 @@
 // POR code for both left and right arduinos for bigbot
 // to do - remove dc_high pin, use input_pullup. not urgent
+// 12/19/2024 - base code prior to MQTT
 // 11/24/2024 - removing PID control from bigbot_control
 // 11/21/2024 - on going pid iterations, speed control
 // 11/20/2024 - removed softserial, removed string to end with #
@@ -184,7 +185,7 @@ wheel_meas_vel = wheel_cmd_vel;
 
 // wheel_cmd is between 0-255 if output from PID
 // wheel_cmd = wheel_cmd: // if using wheel_cmd then using PID
-wheel_cmd = constrain(wheel_cmd_vel, 0, max_rads_per_sec); // if using wheel_cmd_vel then sending command from ROS directly to motor
+wheel_cmd = constrain(wheel_cmd, 0, max_rads_per_sec); // if using wheel_cmd_vel then sending command from ROS directly to motor
 
 
     //*****************************************************
