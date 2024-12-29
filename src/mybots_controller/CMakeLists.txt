@@ -28,11 +28,6 @@ ament_target_dependencies(twist_relay rclcpp geometry_msgs)
 
 ament_python_install_package(${PROJECT_NAME})
 
-install(
-  DIRECTORY include
-  DESTINATION include
-)
-
 install(TARGETS
   simple_controller
   noisy_controller

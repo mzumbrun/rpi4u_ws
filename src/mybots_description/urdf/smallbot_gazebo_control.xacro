@@ -6,7 +6,7 @@
   <xacro:if value="$(arg is_sim)">
     <gazebo>
       <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="gz_ros2_control-system">
-        <parameters>$(find mybots_controller)/config/mybots_controllers.yaml</parameters>
+        <parameters>$(find mybots_controller)/config/smallbot_controllers.yaml</parameters>
       </plugin>
     </gazebo>
   </xacro:if>
