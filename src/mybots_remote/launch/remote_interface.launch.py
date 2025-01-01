@@ -46,5 +46,5 @@ def generate_launch_description():
     return LaunchDescription([
         is_sim_arg,
         task_server_node_py,
-        alexa_interface_node
+       # alexa_interface_node
     ])

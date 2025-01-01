@@ -91,6 +91,24 @@ def generate_launch_description():
         condition=IfCondition(use_slam)
     )
     
+    moveit = IncludeLaunchDescription(
+            os.path.join(
+                get_package_share_directory("mybots_moveit"),
+                "launch",
+                "moveit.launch.py"
+            ),
+            launch_arguments={"is_sim": "False"}.items()
+        )
+    
+    remote_interface = IncludeLaunchDescription(
+            os.path.join(
+                get_package_share_directory("mybots_remote"),
+                "launch",
+                "remote_interface.launch.py"
+            ),
+            launch_arguments={"is_sim": "False"}.items()
+        )
+    
     return LaunchDescription([
         use_slam_arg,
         hardware_interface,
@@ -100,5 +118,7 @@ def generate_launch_description():
         imu_driver_node,
         safety_stop,
      #   localization,
-     #   slam
+     #   slam,
+     #   moveit,
+     #   remote_interface,
     ])
