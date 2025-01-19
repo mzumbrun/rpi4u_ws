@@ -19,7 +19,7 @@ def generate_launch_description():
         os.path.join(
             get_package_share_directory("mybots_description"),
             "launch",
-            "smallbot_gazebo.launch.py"
+            "bigbot_gazebo.launch.py"
         ),
     )
     
@@ -127,6 +127,6 @@ def generate_launch_description():
         slam,
         rviz_localization,
         rviz_slam,
-        moveit,
-        remote_interface
+        #moveit,
+        #remote_interface
     ])

@@ -1,4 +1,5 @@
 // POR code for both left and right arduinos
+// 1/1/2025 - base code for smallbot, each motor uses nano
 // 12/1/2024 - added 'X' so same mybots_controller.cpp for small and big bots
 // 8/16/2024 - changed pin 13 to 7 for better fit on robot
 // 8/15/2024 -
