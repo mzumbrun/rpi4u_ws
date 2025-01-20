@@ -254,9 +254,9 @@ void loop() {
     }
     // ********* above for debug only ***************
     encoder_count_ = 0;
-  }
-  analogWrite(motor_pwm_pin, wheel_cmd);
+  };
 }
+  analogWrite(motor_pwm_pin, wheel_cmd)
 
 // New pulse from  Encoder
 void EncoderCallback() {

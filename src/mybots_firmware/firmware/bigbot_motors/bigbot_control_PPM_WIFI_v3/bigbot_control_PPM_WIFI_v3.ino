@@ -75,20 +75,21 @@ void setup() {
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    // Serial.println("Connecting to WiFi.."); // comment when using ROS
+     Serial.println("Connecting to WiFi.."); // comment when using ROS
   }
   //  Serial.println("Connected to WiFi"); // comment when using ROS
-  // printWifiStatus();
+   printWifiStatus();
 
 
   //Motor.SetMode(AUTOMATIC);
-  // Motor.begin(&wheel_meas_vel, &wheel_cmd, &wheel_cmd_vel, Kp, Ki, Kd);
-  Motor.setOutputLimits(0, 255);
-  //Motor.setBias(58);  // best so far is L at 58
-  Motor.setSampleTime(10);
-  //Motor.setWindUpLimits(-10, 100);  // Left -1,3
+  // ************************************************************************************************************************* edit #1 of 4 for PID
+  Motor.begin(&wheel_meas_vel, &wheel_cmd, &wheel_cmd_vel, Kp, Ki, Kd);
+  Motor.setSampleTime(interval);
+  Motor.setWindUpLimits(-.5, .5);  // Left -1,3
 
-  //Motor.start(); //**************uncomment for PID
+  // **** ******************************************************************************************************************EDIT 2 of 4 for PID ***
+  Motor.start();  //**************uncomment for PID
+  //****
 
   if (digitalRead(motor_select) == HIGH) {
     wheel_side[0] = 'r';
@@ -161,8 +162,8 @@ void loop() {
       }
     }
   }
-  //**********************
-  //Motor.compute();  // ***************** uncomment for PID
+  //*** ***************************************************************************************************************edit 3 of 4 for PID
+  Motor.compute();  // ***************** uncomment for PID
   //*************************
   // Encoder
   unsigned long current_millis = millis();
@@ -184,12 +185,11 @@ void loop() {
     }
     Serial.println(encoder_read);  // send measured velocity back to ROS
 
-    //***************************************************** */
+    //*************************************************************************edit 4 of 4 for PID ***************************************** */
     // to ignore PID, send to motors same cmd received from ROS2
-    wheel_cmd = wheel_cmd_vel;  // wheel_cmd_vel is rad/s // ************** comment out if using PID
+    // wheel_cmd = wheel_cmd_vel;  // wheel_cmd_vel is rad/s // ************** comment out if using PID
     // above only if ignoring PID
     //*****************************************************
-
     encoder_count_ = 0;
   }
   if (wheel_sign == "p") {
@@ -237,12 +237,13 @@ void tunePID() {
   // format from python "axxx.xxx," where a is p, i, or d and xxx.xxx is corresponding value to use
   int packetSize = Udp.parsePacket();
   // only proceeds if data sent
-  if (packetSize) {
+  if (packetSize > 0) {
     int len = Udp.read(packetBuffer, 255);
     // if (len > 0) {
     //   packetBuffer[len] = 0;
     // }
-    String myPID = String(packetBuffer).substring(1, len - 1);
+    String myPID = String(packetBuffer).substring(1, len);
+
     if (packetBuffer[0] == 'p') {
       Kp = myPID.toDouble();
     } else if (packetBuffer[0] == 'i') {
@@ -251,23 +252,29 @@ void tunePID() {
       Kd = myPID.toDouble();
     } else if (packetBuffer[0] == 's') {
       sendData();
-      }
+    }
+    Motor.setCoefficients(Kp, Ki, Kd);
   }
 }
 
 void sendData() {
 
   Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-      dtostrf(wheel_meas_vel, PACKET_SIZE, 3, message_string);
-  Udp.write(message_string, PACKET_SIZE);
-    dtostrf(Kp, PACKET_SIZE, 3, message_string);
-  Udp.write(message_string, PACKET_SIZE);
-    dtostrf(Ki, PACKET_SIZE, 3, message_string);
-  Udp.write(message_string, PACKET_SIZE);
-    dtostrf(Kd, PACKET_SIZE, 3, message_string);
+
+  dtostrf(wheel_cmd_vel, PACKET_SIZE, 3, message_string);
   Udp.write(message_string, PACKET_SIZE);
 
+  dtostrf(wheel_meas_vel, PACKET_SIZE, 3, message_string);
+  Udp.write(message_string, PACKET_SIZE);
 
+  dtostrf(Kp, PACKET_SIZE, 3, message_string);
+  Udp.write(message_string, PACKET_SIZE);
+
+  dtostrf(Ki, PACKET_SIZE, 3, message_string);
+  Udp.write(message_string, PACKET_SIZE);
+
+  dtostrf(Kd, PACKET_SIZE, 3, message_string);
+  Udp.write(message_string, PACKET_SIZE);
 
   Udp.endPacket();
 }

@@ -40,17 +40,21 @@ while True:
     # Send data to Arduino
     data_to_send = 's'
     send_data(local_sock, remote_addr, data_to_send)
-    data_to_send = 'p1.0'
+    
+    data_to_send = 'p0.09'
     send_data(local_sock, remote_addr, data_to_send)
-    data_to_send = 'i0.0'
+    
+    data_to_send = 'i0.24'
     send_data(local_sock, remote_addr, data_to_send)
-    data_to_send = 'd0.0'
+    
+    data_to_send = 'd0.0084'
     send_data(local_sock, remote_addr, data_to_send)
+    
     # print(f"Sent: {data_to_send}")
 
     # Receive data from Arduino
     received_data = receive_data(local_sock)
     if received_data:
-        print(f"Right measured rad/s and PID: {received_data}")
+        print(f"Right command & measured rad/s and PID: {received_data}")
 
    # time.sleep(1)

@@ -13,3 +13,5 @@ src/mybots_firmware/firmware/bigbot_motors/bigbot_control_Ardu_ADC/arduino_secre
 src/mybots_firmware/firmware/bigbot_motors/bigbot_control_PPM_WIFI/arduino_secrets.h
 src/mybots_firmware/firmware/bigbot_motors/bigbot_control_PPM_WIFI_v2/bigbot_firmware_parameters.h
 src/mybots_firmware/firmware/bigbot_motors/bigbot_control_PPM_WIFI_v3/bigbot_firmware_parameters.h
+src/mybots_utils/mybots_utils/test_left.py
+src/mybots_utils/mybots_utils/test_right.py
