@@ -1,22 +1,19 @@
 // Dev code for both left and right arduino nano iot for bigbot
-// 01/19/2025 - new v3 - adding PID constants to change from wifi python code
-// 01/15/2025 - v2 - adjusting parameters specific to bldc motors implemented
-// 01/14/2025 - init code PPM and WIFI
+// 01/24/2025 going back to ADC, 
+
 
 #include <WiFiNINA.h>
 #include <WiFiUdp.h>
 #include <SPI.h>
 #include "bigbot_firmware_parameters.h"
 #include <ArduPID.h>
-#include <Servo.h>
 
-#define motor_ppm_pin 9    // ppm control signal to esc
+#define motor_true_adc_pin A0 // 
+#define motor_rev_pin 11   // low is reverse (3.3V per VESC)
 #define motor_select 6     // connect to dc_high for right motor, dc_low for left motor
 #define dc_high 5          // driven high - right
 #define dc_low 4           // driven low - left
 #define encoder_counter 2  // Interrupt for hall sensor in use
-
-Servo bigbot_servo;
 
 // WiFi network details
 char ssid[] = SECRET_SSID;
@@ -58,9 +55,8 @@ ArduPID Motor;
 
 void setup() {
 
-  pinMode(motor_ppm_pin, OUTPUT);
-  bigbot_servo.attach(motor_ppm_pin);
-
+  pinMode(motor_true_adc_pin, OUTPUT);
+  pinMode(motor_rev_pin, OUTPUT);
   pinMode(dc_low, OUTPUT);
   pinMode(dc_high, OUTPUT);
   digitalWrite(dc_low, LOW);
@@ -69,6 +65,9 @@ void setup() {
 
   pinMode(encoder_counter, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(encoder_counter), EncoderCallback, RISING);
+
+  analogWrite(motor_rev_pin, LOW);  // default backwards
+  analogWrite(motor_true_adc_pin, 0);    // motors off at start
 
   Serial.begin(115200);
   WiFi.begin(ssid, password);
@@ -83,8 +82,8 @@ void setup() {
   //PID
   Motor.begin(&wheel_meas_vel, &wheel_cmd, &wheel_cmd_vel, Kp, Ki, Kd);
  // Motor.setSampleTime(interval/2);
- // Motor.setOutputLimits(0, 8);
-  Motor.setWindUpLimits(-0, 7);  // Left -1,3 ; best -.5, .5
+  Motor.setOutputLimits(25, 60);
+  Motor.setWindUpLimits(-0, 3);  // Left -1,3 ; best -.5, .5
   Motor.start();
   //****
 
@@ -92,10 +91,6 @@ void setup() {
     wheel_side[0] = 'r';
     Udp.begin(rightPort);
     is_right = true;
-    max_pos_speed = max_pos_speed_RIGHT;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
-    max_neg_speed = max_neg_speed_RIGHT;
-    zero_speed = zero_speed_RIGHT;
-    bigbot_servo.writeMicroseconds(zero_speed);  // start the motor at 0 speed
     Kp = KpR;
     Ki = KiR;
     Kd = KdR;
@@ -104,10 +99,6 @@ void setup() {
     wheel_side[0] = 'l';
     Udp.begin(leftPort);
     is_right = false;
-    max_pos_speed = max_pos_speed_LEFT;  // corresponds to max rad/s for RIGHT motor to match max provided by ROS
-    max_neg_speed = max_neg_speed_LEFT;
-    zero_speed = zero_speed_LEFT;
-    bigbot_servo.writeMicroseconds(zero_speed);  // start the motor at 0 speed
     Kp = KpL;
     Ki = KiL;
     Kd = KdL;
@@ -128,11 +119,13 @@ void loop() {
       if (is_wheel_cmd) {
         wheel_sign = "p";
         is_wheel_forward = true;
+        analogWrite(motor_rev_pin, 255);  // 3.3 volts
       }
     } else if (chr == 'n') {
       if (is_wheel_cmd) {
         wheel_sign = "n";
         is_wheel_forward = false;
+        analogWrite(motor_rev_pin, 0);  // 0 volts
       }
     }
     // Separator
@@ -177,7 +170,7 @@ void loop() {
     Motor.compute();
     //*************************************************************************edit for PID ***************************************** */
     // to ignore PID, send to motors same cmd received from ROS2
-    wheel_cmd = wheel_cmd_vel;  // wheel_cmd_vel is rad/s // ************** comment out if using PID
+  //  wheel_cmd = wheel_cmd_vel;  // wheel_cmd_vel is rad/s // ************** comment out if using PID
     // above only if ignoring PID
     //*****************************************************
     encoder_count_ = 0;
@@ -189,14 +182,7 @@ void loop() {
     encoder_count_ = 0;
   }
   // send speed to motors
-  if (wheel_sign == "p") {
-    speed = zero_speed + ((wheel_cmd / max_rads_per_sec) * (max_pos_speed - zero_speed));
-    bigbot_servo.writeMicroseconds(int(speed));
-  }
-  if (wheel_sign == "n") {
-    speed = zero_speed + ((wheel_cmd / max_rads_per_sec) * (max_neg_speed - zero_speed));
-    bigbot_servo.writeMicroseconds(int(speed));
-  }
+  analogWrite(motor_true_adc_pin, (int)wheel_cmd);
 
   tunePID();
 }
@@ -258,7 +244,7 @@ void sendData() {
 
   Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
 
-  dtostrf(speed, PACKET_SIZE, 3, message_string);
+  dtostrf(wheel_cmd, PACKET_SIZE, 3, message_string);
   Udp.write(message_string, PACKET_SIZE);
 
   dtostrf(wheel_meas_vel, PACKET_SIZE, 3, message_string);
