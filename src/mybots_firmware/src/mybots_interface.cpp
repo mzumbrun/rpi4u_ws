@@ -71,6 +71,7 @@ CallbackReturn mybotsInterface::on_init(const hardware_interface::HardwareInfo &
   position_states_.reserve(info_.joints.size());
   velocity_states_.reserve(info_.joints.size());
   last_run_ = rclcpp::Clock().now();
+  last_run2_ = rclcpp::Clock().now();
 
   return CallbackReturn::SUCCESS;
 }
@@ -209,6 +210,7 @@ hardware_interface::return_type mybotsInterface::read(const rclcpp::Time &,
       }
     }
     last_run_ = rclcpp::Clock().now();
+
   }
     if(arduino2_.IsDataAvailable())
   {
@@ -267,11 +269,13 @@ hardware_interface::return_type mybotsInterface::write(const rclcpp::Time &,
   
   message_stream << std::fixed << std::setprecision(2) << 
     "r" << right_wheel_sign << compensate_zeros_right << std::abs(velocity_commands_.at(0)) << 
-    ",l" <<  left_wheel_sign << compensate_zeros_left << std::abs(velocity_commands_.at(1)) << "X";
+    ",l" <<  left_wheel_sign << compensate_zeros_left << std::abs(velocity_commands_.at(1)) << ",";
 
   try
   {
     arduino_.Write(message_stream.str());
+    // RCLCPP_INFO_STREAM(rclcpp::get_logger("mybotsInterface"),
+    //                       "Sending to port1 " << message_stream.str() << "  port  " << port_);
   }
   catch (...)
   {
