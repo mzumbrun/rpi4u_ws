@@ -1,5 +1,5 @@
 // Dev code for both left and right arduino nano iot for bigbot
-// 01/24/2025 going back to ADC, 
+// 01/24/2025 going back to ADC,
 
 
 #include <WiFiNINA.h>
@@ -8,12 +8,12 @@
 #include "bigbot_firmware_parameters.h"
 #include <ArduPID.h>
 
-#define motor_true_adc_pin A0 // 
-#define motor_rev_pin 11   // low is reverse (3.3V per VESC)
-#define motor_select 6     // connect to dc_high for right motor, dc_low for left motor
-#define dc_high 5          // driven high - right
-#define dc_low 4           // driven low - left
-#define encoder_counter 2  // Interrupt for hall sensor in use
+#define motor_true_adc_pin A0  //
+#define motor_rev_pin 11       // low is reverse (3.3V per VESC)
+#define motor_select 6         // connect to dc_high for right motor, dc_low for left motor
+#define dc_high 5              // driven high - right
+#define dc_low 4               // driven low - left
+#define encoder_counter 2      // Interrupt for hall sensor in use
 
 // WiFi network details
 char ssid[] = SECRET_SSID;
@@ -29,7 +29,7 @@ WiFiUDP Udp;
 
 // Encoders
 unsigned long encoder_count_ = 0;
-unsigned int clicks_per_rev = 24;  // encoder-plate-v1
+unsigned int clicks_per_rev = 24.;  // encoder-plate-v1 is 24
 unsigned long last_millis = 0;
 const unsigned long interval = 333;
 unsigned long real_interval = 0;
@@ -64,10 +64,10 @@ void setup() {
   pinMode(motor_select, INPUT);
 
   pinMode(encoder_counter, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(encoder_counter), EncoderCallback, RISING);
+  attachInterrupt(digitalPinToInterrupt(encoder_counter), EncoderCallback, FALLING);
 
-  analogWrite(motor_rev_pin, LOW);  // default backwards
-  analogWrite(motor_true_adc_pin, 0);    // motors off at start
+  analogWrite(motor_rev_pin, LOW);     // default backwards
+  analogWrite(motor_true_adc_pin, 0);  // motors off at start
 
   Serial.begin(115200);
   WiFi.begin(ssid, password);
@@ -81,9 +81,9 @@ void setup() {
 
   //PID
   Motor.begin(&wheel_meas_vel, &wheel_cmd, &wheel_cmd_vel, Kp, Ki, Kd);
- // Motor.setSampleTime(interval/2);
-  Motor.setOutputLimits(25, 60);
-  Motor.setWindUpLimits(-0, 3);  // Left -1,3 ; best -.5, .5
+  Motor.setSampleTime(interval);
+
+                                  // Motor.setWindUpLimits(-0., 20.0);  // Left -1,3 ; best -.5, .5
   Motor.start();
   //****
 
@@ -94,6 +94,7 @@ void setup() {
     Kp = KpR;
     Ki = KiR;
     Kd = KdR;
+    Motor.setOutputLimits(16, 80);  // left 20,80, right 20,80 for now
     Motor.setCoefficients(Kp, Ki, Kd);
   } else {
     wheel_side[0] = 'l';
@@ -102,6 +103,7 @@ void setup() {
     Kp = KpL;
     Ki = KiL;
     Kd = KdL;
+    Motor.setOutputLimits(20, 80);  // left 20,80, right 20,80 for now
     Motor.setCoefficients(Kp, Ki, Kd);
   }
 }
@@ -167,23 +169,25 @@ void loop() {
       encoder_read = "l" + wheel_sign + String(wheel_meas_vel, 2) + ",";
     }
     Serial.println(encoder_read);  // send measured velocity back to ROS
+
     Motor.compute();
     //*************************************************************************edit for PID ***************************************** */
     // to ignore PID, send to motors same cmd received from ROS2
-  //  wheel_cmd = wheel_cmd_vel;  // wheel_cmd_vel is rad/s // ************** comment out if using PID
+    //wheel_cmd = wheel_cmd_vel;  // wheel_cmd_vel is rad/s // ************** comment out if using PID
     // above only if ignoring PID
     //*****************************************************
     encoder_count_ = 0;
-  }
- // *********end of speed measurement
-//
-  if (wheel_cmd_vel == 0.0) {  // if setpoint is 0, then make sure cmd to wheels is 0
-    wheel_cmd = 0.0;
-    encoder_count_ = 0;
-  }
-  // send speed to motors
-  analogWrite(motor_true_adc_pin, (int)wheel_cmd);
+    // }
 
+    // *********end of speed measurement
+    //
+    if (wheel_cmd_vel == 0.0) {  // if setpoint is 0, then make sure cmd to wheels is 0
+      wheel_cmd = 0.0;
+      encoder_count_ = 0;
+    }
+    // send speed to motors
+    analogWrite(motor_true_adc_pin, (int)wheel_cmd);
+  }
   tunePID();
 }
 
@@ -244,10 +248,14 @@ void sendData() {
 
   Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
 
-  dtostrf(wheel_cmd, PACKET_SIZE, 3, message_string);
+  //dtostrf(encoder_count_, PACKET_SIZE, 0, message_string);  // was wheel_cmd_vel & 3 decimal places
+  dtostrf(wheel_cmd_vel, PACKET_SIZE, 2, message_string);  // was wheel_cmd_vel & 3 decimal places
   Udp.write(message_string, PACKET_SIZE);
 
-  dtostrf(wheel_meas_vel, PACKET_SIZE, 3, message_string);
+  dtostrf(wheel_meas_vel, PACKET_SIZE, 2, message_string);
+  Udp.write(message_string, PACKET_SIZE);
+
+  dtostrf((int)wheel_cmd, PACKET_SIZE, 0, message_string);
   Udp.write(message_string, PACKET_SIZE);
 
   dtostrf(Kp, PACKET_SIZE, 3, message_string);

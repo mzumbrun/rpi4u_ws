@@ -127,6 +127,6 @@ def generate_launch_description():
         slam,
         rviz_localization,
         rviz_slam,
-        moveit,
-        remote_interface
+        #moveit,
+        #remote_interface
     ])

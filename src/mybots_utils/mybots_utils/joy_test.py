@@ -18,7 +18,7 @@ class JoyPublisher(Node):
         msg.header.stamp = self.get_clock().now().to_msg()
         # axis 1 is motor speed (numbering starts at 0)
         #            0    1    2    3    4
-        msg.axes = [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+        msg.axes = [0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
         # button 5 is enable (numbering starts at 0)
         #              0  1  2  3  4  5  6  7
         msg.buttons = [0, 0, 0, 0, 0, 1, 0, 1, 0, 0]
